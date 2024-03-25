@@ -1,0 +1,352 @@
+[{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3caa"
+  },
+  "username": "dsantora0",
+  "first_name": "Dur",
+  "last_name": "Santora",
+  "email": "dsantora0@ucsd.edu",
+  "gender": "Male",
+  "team": [],
+  "age": 27
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cab"
+  },
+  "username": "cgreenhow1",
+  "first_name": "Constantine",
+  "email": "cwateridge1@dailymail.co.uk",
+  "location": "Afghanistan",
+  "team": [],
+  "age": 39
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cac"
+  },
+  "username": "hpinxton2",
+  "first_name": "Hoebart",
+  "last_name": "Pinxton",
+  "email": "hpinxton2@goo.gl",
+  "age": 31
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cad"
+  },
+  "username": "mwontner3",
+  "first_name": "Melisandra",
+  "last_name": "Wontner",
+  "email": "mwontner3@angelfire.com",
+  "location": "Afghanistan",
+  "age": 41
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cae"
+  },
+  "username": "bpearch4",
+  "first_name": "Blakeley",
+  "last_name": "Pearch",
+  "email": "bpearch4@google.co.jp",
+  "age": 39
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3caf"
+  },
+  "username": "bmcfarlan5",
+  "first_name": "Brook",
+  "last_name": "McFarlan",
+  "email": "bmcfarlan5@berkeley.edu"
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cb0"
+  },
+  "username": "nverna6",
+  "first_name": "Noemi",
+  "last_name": "Verna",
+  "email": "nverna6@fda.gov",
+  "location": "Afghanistan"
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cb1"
+  },
+  "username": "bgifford7",
+  "first_name": "Blanch",
+  "last_name": "Gifford",
+  "email": "bgifford7@rambler.ru"
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cb2"
+  },
+  "username": "akarlicek8",
+  "first_name": "Ardelle",
+  "last_name": "Karlicek",
+  "email": "akarlicek8@zimbio.com",
+  "location": "Afghanistan",
+  "age": 19
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cb3"
+  },
+  "username": "ccracoe9",
+  "first_name": "Carling",
+  "last_name": "Cracoe",
+  "email": "ccracoe9@webnode.com",
+  "age": 26
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cb4"
+  },
+  "username": "dbowsa",
+  "first_name": "Dody",
+  "last_name": "Bows",
+  "email": "dbowsa@angelfire.com",
+  "gender": "Female",
+  "location": "Afghanistan",
+  "age": 17
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cb5"
+  },
+  "username": "lcrushb",
+  "first_name": "Laurene",
+  "email": "lkeenlysideb@prlog.org",
+  "location": "Afghanistan",
+  "team": [],
+  "age": 24
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cb6"
+  },
+  "username": "mperec",
+  "first_name": "Misha",
+  "email": "mruoffc@de.vu",
+  "age": 39
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cb7"
+  },
+  "username": "xdoylandd",
+  "first_name": "Xavier",
+  "email": "xaartsend@ft.com",
+  "age": 37
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cb8"
+  },
+  "username": "qmuzzilloe",
+  "first_name": "Quintana",
+  "email": "qleversuche@t-online.de",
+  "location": "Afghanistan",
+  "age": 39
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cb9"
+  },
+  "username": "asuscensf",
+  "first_name": "Artie",
+  "last_name": "Suscens",
+  "email": "asuscensf@bloglines.com",
+  "age": 40
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cba"
+  },
+  "username": "clightollerg",
+  "first_name": "Carce",
+  "last_name": "Lightoller",
+  "email": "clightollerg@ocn.ne.jp",
+  "age": 38
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cbb"
+  },
+  "username": "nkienlh",
+  "first_name": "Nicol",
+  "last_name": "Kienl",
+  "email": "nkienlh@zimbio.com",
+  "location": "Afghanistan",
+  "age": 37
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cbc"
+  },
+  "username": "pwellumi",
+  "first_name": "Pegeen",
+  "last_name": "Wellum",
+  "email": "pwellumi@dagondesign.com",
+  "age": 29
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cbd"
+  },
+  "username": "ttuttlej",
+  "first_name": "Tiffanie",
+  "last_name": "Tuttle",
+  "email": "ttuttlej@odnoklassniki.ru",
+  "gender": "Female",
+  "location": "Afghanistan",
+  "age": 44
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cbe"
+  },
+  "username": "lvasserk",
+  "first_name": "Liesa",
+  "last_name": "Vasser",
+  "email": "lvasserk@biblegateway.com",
+  "location": "Afghanistan",
+  "age": 31
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cbf"
+  },
+  "username": "flengthornl",
+  "first_name": "Fonzie",
+  "email": "fvasyunkinl@cbslocal.com",
+  "gender": "Male",
+  "age": 35
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cc0"
+  },
+  "username": "fthompkinsm",
+  "first_name": "Florencia",
+  "last_name": "Thompkins",
+  "email": "fthompkinsm@taobao.com",
+  "location": "Afghanistan",
+  "team": [],
+  "age": 30
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cc1"
+  },
+  "username": "mgerretsenn",
+  "first_name": "Midge",
+  "email": "mlamarn@meetup.com",
+  "location": "Afghanistan",
+  "age": 30
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cc2"
+  },
+  "username": "rsollaso",
+  "first_name": "Roman",
+  "email": "rackeroydo@slideshare.net",
+  "location": "Afghanistan",
+  "age": 31
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cc3"
+  },
+  "username": "amarikhinp",
+  "first_name": "Aimil",
+  "email": "amedgewickp@ameblo.jp",
+  "gender": "Polygender",
+  "team": [],
+  "age": 27
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cc4"
+  },
+  "username": "ashakespeareq",
+  "first_name": "Adina",
+  "email": "amottramq@vkontakte.ru",
+  "gender": "Female",
+  "location": "Afghanistan",
+  "team": [],
+  "age": 34
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cc5"
+  },
+  "username": "bwarboyr",
+  "first_name": "Bernadene",
+  "email": "blabittr@howstuffworks.com",
+  "location": "Afghanistan",
+  "age": 30
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cc6"
+  },
+  "username": "nordishs",
+  "first_name": "Nelie",
+  "email": "ndurrants@fastcompany.com",
+  "location": "Afghanistan",
+  "age": 17
+},
+{
+  "_id": {
+    "$oid": "64da25786eac2699b0de3cc7"
+  },
+  "username": "akytleyt",
+  "first_name": "Ag",
+  "email": "aclemmowt@symantec.com",
+  "gender": "Female"
+},
+{
+  "_id": {
+    "$oid": "64dfcada245e3338962264c3"
+  },
+  "username": "johndoe",
+  "teams": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "64dfcd10245e3338962264c7"
+  },
+  "username": "johndoe",
+  "teams": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "64dfcd653cf455ad3a2a1c70"
+  },
+  "username": "johndoe",
+  "teams": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "64e23d8786039cff435e02c2"
+  },
+  "username": "myusertest",
+  "teams": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "64ede44ad37c29de9e808baf"
+  },
+  "username": "postmantest",
+  "teams": [],
+  "__v": 0
+}]

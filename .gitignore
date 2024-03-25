@@ -1,0 +1,9 @@
+*/node_modules/
+application/public/assets/default.jpg
+/API/node_modules
+/application/.env
+pipeline/.env
+pipeline/venv
+pipeline/__pycache__/
+pipeline/.vscode/
+.vscode/

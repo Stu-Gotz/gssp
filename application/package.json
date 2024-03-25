@@ -1,0 +1,48 @@
+{
+  "name": "pgmp",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "node ../API/server.js",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.11.7",
+    "@vueuse/core": "^10.9.0",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
+    "bootstrap": "^5.2.3",
+    "bootstrap-icons": "^1.10.5",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.18.2",
+    "happy-dom": "^6.0.4",
+    "jsonwebtoken": "^9.0.1",
+    "koffing": "^1.0.0",
+    "mongoose": "^7.3.3",
+    "pg": "^8.5.1",
+    "pinia": "^2.0.35",
+    "pinia-plugin-persistedstate": "^3.2.1",
+    "pokedex-promise-v2": "^4.1.1",
+    "vue": "^3.2.47",
+    "vue-router": "^4.1.6",
+    "yup": "^1.2.0",
+    "yup-password": "^0.2.2"
+  },
+  "devDependencies": {
+    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
+    "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
+    "@rollup/plugin-commonjs": "^21.1.0",
+    "@vitejs/plugin-vue": "^4.2.1",
+    "@vue/test-utils": "^2.4.1",
+    "rollup-plugin-node-polyfills": "^0.2.1",
+    "rollup-plugin-polyfill-node": "^0.10.2",
+    "sass": "^1.62.1",
+    "vite": "^4.3.9",
+    "vitest": "^0.34.1"
+  }
+}

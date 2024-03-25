@@ -1,0 +1,55 @@
+Scizor @ Expert Belt  
+Ability: Static  
+EVs: 252 Atk / 4 SpD / 252 Spe  
+Jolly Nature  
+- Endeavor  
+- Brick Break  
+- Iron Tail  
+- Curse  
+
+Smoochum @ Wiki Berry  
+Ability: Technician  
+EVs: 252 Atk / 4 SpA / 252 Spe  
+Hasty Nature  
+- Curse  
+- Fake Out  
+- Facade  
+- Hyper Voice  
+
+Crawdaunt @ Choice Scarf  
+Ability: Torrent  
+EVs: 4 Atk / 252 SpA / 252 Spe  
+Naive Nature  
+- Curse  
+- Haze  
+- Blizzard  
+- Aqua Jet  
+
+Cyndaquil @ Mago Berry  
+Ability: Blaze  
+EVs: 252 HP / 252 Atk / 4 SpA  
+Lonely Nature  
+- Ancient Power  
+- Fire Fang  
+- Focus Punch  
+- Dragon Claw  
+
+Onix @ Choice Specs  
+Ability: Keen Eye  
+EVs: 252 SpA / 4 SpD / 252 Spe  
+Timid Nature  
+IVs: 0 Atk  
+- Defog  
+- Ice Beam  
+- Hurricane  
+- Air Slash  
+
+Hawlucha @ Aguav Berry  
+Ability: Run Away  
+EVs: 4 Atk / 252 SpA / 252 Spe  
+Hasty Nature  
+- Shadow Ball  
+- Facade  
+- Curse  
+- Ice Beam  
+

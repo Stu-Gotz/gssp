@@ -22,7 +22,7 @@ import Footer from '../components/Footer.vue'
 <style>
 .content {
   display: grid;
-  grid-template-columns: 30% auto;
+  grid-template-columns: 17% auto;
   grid-template-rows: 1fr auto;
   column-gap: 20px;
   background: var(--color-background);

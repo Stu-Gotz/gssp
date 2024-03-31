@@ -16,7 +16,7 @@ const teamStore = useTeamStore();
       <!-- This is technically bad practice, I will optimize later if time is available. -->
       <WelcomeCards v-if="!teamStore.team" />
       <!-- <CardFront v-else v-for="i in teamStore.team" :pokemon="i"/> -->
-      <Card v-else :pokemon="teamStore.team" />
+      <Card v-else :pokemon="teamStore.team.members" />
     </div>
   </div>
   <!-- End Top Half Page -->

@@ -49,5 +49,6 @@ export const useStatStore = defineStore('statStore', {
     getTma(state) {
       return state.tma;
     }
-  }
+  },
+  persist: true,
 })

@@ -8,7 +8,7 @@ export const useUserStore = defineStore("userStore", {
         username: useLocalStorage('user', null),
         isLoggedIn: false,
         role: null,
-        profileData: null,
+        profileInfo: null,
         id: null,
       }
     }
@@ -19,13 +19,13 @@ export const useUserStore = defineStore("userStore", {
       this.isLoggedIn = true;
       this.id = userData.userId;
       this.role = userData.role;
-      this.profileData = userData.profile;
+      this.profileInfo = userData.profile;
     },
     logout() {
       this.username = null;
       this.isLoggedIn = false;
       this.role = null;
-      this.profileData = null;
+      this.profileInfo = null;
       this.id = null;
     },
   },
@@ -38,6 +38,9 @@ export const useUserStore = defineStore("userStore", {
     },
     getUserProfileData(state) {
       return state.profileData
+    },
+    getLoginStatus(state) {
+      return state.isLoggedIn
     },
   },
   persist: true,

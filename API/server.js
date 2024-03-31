@@ -18,7 +18,7 @@ app.use(express.static("public"));
 
 async function querySql(statement, values) {
   const query = await pool.query(statement, values);
-  console.log(query);
+  // console.log(query);
   const results = query.rows;
   return results;
 }
@@ -39,7 +39,7 @@ app.get("/apiv1/current/:tier", async (req, res) => {
   try {
     const { tier } = req.params;
     const output = await handleParams("current", [tier]);
-    console.log(output);
+    // console.log(output);
     return res.json(output);
   } catch (error) {
     console.log(error.message);
@@ -99,6 +99,9 @@ app.post("/apiv1/login", async (req, res) => {
 
     //In future use, userProfile will be used to populate a profile page, and save teams, if desired.
     const userProfile = await userModel.findById(userData.mongo_id).exec();
+    console.log(userProfile)
+    const {_id, __v, ...profile} = userProfile.toObject()
+    // console.log(userProfile.toObject())
     //sign token (This isn't used in this application as we aren't using cookies,
     // but in a real-world scenario, or possibly in the future, it might be useful)
     const token = jwt.sign(
@@ -110,10 +113,10 @@ app.post("/apiv1/login", async (req, res) => {
       "secretkey"
     );
     res.status(200).send({
-      username: userData.username,
+      username: username,
       role: userData.role,
       mongo_id: userData.mongo_id,
-      profile: userProfile,
+      profileInfo: profile,
       token,
     });
   } catch (error) {

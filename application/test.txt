@@ -16,7 +16,7 @@ Hasty Nature
 - Facade  
 - Hyper Voice  
 
-Crawdaunt @ Choice Scarf  
+Meganium @ Choice Scarf  
 Ability: Torrent  
 EVs: 4 Atk / 252 SpA / 252 Spe  
 Naive Nature  

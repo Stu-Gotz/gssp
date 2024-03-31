@@ -3,6 +3,8 @@ import { ref, onMounted } from 'vue';
 import { Koffing } from 'koffing';
 import { useTeamStore } from '../stores/teamStore';
 import { useStatStore } from '../stores/usageStore';
+import { useUserStore } from '../stores/userStore';
+
 import { storeToRefs } from 'pinia';
 import Pokedex from 'pokedex-promise-v2';
 
@@ -69,44 +71,56 @@ const gens = ["gen1", "gen2", "gen3", "gen4", "gen5", "gen6", "gen7", "gen8", "g
 const userInput = ref(null);
 const tier = ref("");
 const gen = ref("");
+const name = ref("")
 const teamName = ref("");
-const fullname = `=== ${gen.value}${tier.value} ${teamName.value}===`;
+
+
 
 // stores
 const teamStore = useTeamStore();
 const statStore = useStatStore();
-
+const userStore = useUserStore();
+console.log(userStore.getLoginStatus)
 onMounted(() => {
   userInput.value = "";
-  tier.value = "";
-  gen.value = "";
+  tier.value = teamStore.team ? teamStore.getTier : "";
+  gen.value = teamStore.team ? teamStore.getGen : "";
+  name.value = teamStore.team.name;
 });
 
 const errors = ref([]);
 
-
 async function submitForm() {
-  console.log(errors.value);
+  const fullname = `=== ${gen.value}${tier.value} ${teamName.value}===`;
   errors.value = [];
-  console.log(errors.value);
+  // console.log(errors.value);
+
+  /** This just checks that users have input values into required fields */
   if (userInput.value === null) {
     errors.value.push("Please paste a team into the area below.");
-    console.log(errors.value);
+    // console.log(errors.value);
   } else if (gen.value === "") {
     errors.value.push("Please select a generation from the dropdown below.");
-    console.log(errors.value);
+    // console.log(errors.value);
   } else if (tier.value === "") {
     errors.value.push("Please select a tier from the dropdown below.");
-    console.log(errors.value);
+    // console.log(errors.value);
   } else {
-
-    const team = await teamStore.parseInput(userInput.value);
-
+    const teamObj = {
+        name: name.value || fullname,
+        gen: gen.value,
+        tier: tier.value,
+        members: null,
+      }
+    teamObj.members = await teamStore.parseInput(userInput.value);
+    
     const tranche = gen.value + tier.value;
-    // await statStore.setCurrent(tranche);
-    // await statStore.setPrevious(tranche);
-    // await statStore.setOlder(tranche);
-    teamStore.updateTeam(team);
+    
+    await statStore.setCurrent(tranche);
+    await statStore.setPrevious(tranche);
+    await statStore.setOlder(tranche);
+
+    teamStore.updateTeam(teamObj);
 
     /**
      * 
@@ -164,6 +178,12 @@ async function submitForm() {
 function clearForm() {
   userInput.value = "";
   teamStore.$reset();
+  window.location.reload()
+}
+
+function saveTeam() {
+  
+
 }
 </script>
 
@@ -173,8 +193,8 @@ function clearForm() {
     <ul v-if="errors.value">
       <li v-for="{ idx, err } in errors.value">{{ idx }} - {{ err }}</li>
     </ul>
-    <label class="team-name" for="genInput">Please select the generation:</label>
-    <input class="form-control ps-2 pt-0 mx-2 mb-2 mt-0" type="text" id="team-name" placeholder="Team Name (optional)">
+    <label class="team-name" for="teamName">Provide a team name (optional):</label>
+    <input v-model="name" class="form-control ps-2 pt-0 mx-2 mb-2 mt-0" type="text" id="teamName" placeholder="Team Name">
     <label class="form-label" for="genInput">Please select the generation:</label>
     <select v-model="gen" class="form-select ps-2 pt-0 mx-2 mb-2 mt-0" name="genInput" id="genInput">
       <option v-for="gen in gens">{{ gen }}</option>
@@ -190,6 +210,7 @@ function clearForm() {
     <div class="d-flex align-items-center justify-content-around">
       <button @click="submitForm()" type="button" class="btn btn-success form-control w-25">Submit</button>
       <button @click="clearForm()" type="button" class="btn btn-danger form-control w-25">Clear</button>
+      <button v-if="userStore.getLoginStatus" @click="saveTeam()" type="button" class="btn btn-primary form-control w-25">Save</button>
     </div>
   </form>
 </template>

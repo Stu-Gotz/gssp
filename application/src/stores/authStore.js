@@ -21,10 +21,9 @@ export const useAuthStore = defineStore("authStore", {
         const res = await fetch(`${baseUrl}/login`, headers);
         if (res.status === 200) {
           const data = await res.json();
-
-          this.token = data.token;
+          console.log(data)
           //set userStore data so it can be accessed through the profile.
-          userStore.setUserData({username: data.username, role: data.role, profile: data.userProfile, userId: data.mongo_id})
+          userStore.setUserData({username: data.username, role: data.role, profileInfo: data.profileInfo, userId: data.mongo_id})
 
           return true;
         } else {

@@ -71,6 +71,7 @@ app.get("/apiv1/older/:tier", async (req, res) => {
 app.post("/apiv1/login", async (req, res) => {
   //Get the login creds from the request
   const { username, password } = req.body;
+  console.log(req.body)
   try {
     //Query the database, similar to above, just searching a different table
     const loginQuery =
@@ -158,6 +159,21 @@ app.post("/apiv1/register", async (req, res) => {
   } catch (err) {
     console.log(err);
   }
+});
+
+app.post('/apiv1/saveteam', async (req, res) => {
+  const {id, username, team} = req.body;
+  console.log(req.body)
+  const user = await userModel.findById(id).exec();
+  console.log(user)
+  if (user.teams){
+    user.teams.push(team);
+  } else {
+    user.teams = [team];
+  };
+  await user.save().then(
+    res.status(200).send({message: `Successfully updated ${username}'s teams.`})
+  );
 });
 
 app.listen(PORT, () => {

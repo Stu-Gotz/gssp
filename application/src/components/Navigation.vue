@@ -23,7 +23,7 @@ userStore.$subscribe((mutation, state) => {return}, { detached: true })
           <li class="nav-item">
             <RouterLink class="nav-link active" to="/"><i class="bi bi-house-door"></i></RouterLink>
           </li>
-          <li v-if="userStore.isLoggedIn" class="nav-item">
+          <li v-if="userStore.getLoginStatus" class="nav-item">
           <li class="nav-item dropdown">
           <!-- View if User is logged in -->
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">

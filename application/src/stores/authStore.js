@@ -1,9 +1,8 @@
 import { defineStore } from "pinia";
 import { useUserStore } from "./userStore";
-
+import { baseAPIUrl } from "../utils/utils";
 const userStore = useUserStore();
 
-const baseUrl = "http://127.0.0.1:5500/apiv1";
 export const useAuthStore = defineStore("authStore", {
   state: () => ({
     token: null,
@@ -18,12 +17,11 @@ export const useAuthStore = defineStore("authStore", {
           },
           body: JSON.stringify(loginForm),
         };
-        const res = await fetch(`${baseUrl}/login`, headers);
+        const res = await fetch(`${baseAPIUrl}/login`, headers);
         if (res.status === 200) {
           const data = await res.json();
-          console.log(data)
           //set userStore data so it can be accessed through the profile.
-          userStore.setUserData({username: data.username, role: data.role, profileInfo: data.profileInfo, userId: data.mongo_id})
+          userStore.setUserData(data)
 
           return true;
         } else {
@@ -44,7 +42,7 @@ export const useAuthStore = defineStore("authStore", {
           },
           body: JSON.stringify(registerForm),
         };
-        const res = await fetch(`${baseUrl}/register`, headers);
+        const res = await fetch(`${baseAPIUrl}/register`, headers);
         console.log(res)
         if (res.status === 201) {
           console.log("Successful registration");

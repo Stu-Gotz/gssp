@@ -1,14 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { Koffing } from 'koffing';
 import { useTeamStore } from '../stores/teamStore';
 import { useStatStore } from '../stores/usageStore';
 import { useUserStore } from '../stores/userStore';
-
-import { storeToRefs } from 'pinia';
-import Pokedex from 'pokedex-promise-v2';
-
-const P = new Pokedex();
 
 const tiers = [
   "ou",
@@ -74,13 +68,18 @@ const gen = ref("");
 const name = ref("")
 const teamName = ref("");
 
-
-
+let teamObj = {
+  name: null,
+  gen: null,
+  tier: null,
+  members: null,
+}
 // stores
 const teamStore = useTeamStore();
 const statStore = useStatStore();
 const userStore = useUserStore();
-console.log(userStore.getLoginStatus)
+
+
 onMounted(() => {
   userInput.value = "";
   tier.value = teamStore.team ? teamStore.getTier : "";
@@ -91,7 +90,7 @@ onMounted(() => {
 const errors = ref([]);
 
 async function submitForm() {
-  const fullname = `=== ${gen.value}${tier.value} ${teamName.value}===`;
+  const defaultName = `=== ${gen.value}${tier.value} ${teamName.value}===`;
   errors.value = [];
   // console.log(errors.value);
 
@@ -106,8 +105,8 @@ async function submitForm() {
     errors.value.push("Please select a tier from the dropdown below.");
     // console.log(errors.value);
   } else {
-    const teamObj = {
-        name: name.value || fullname,
+    teamObj = {
+        name: name.value || defaultName,
         gen: gen.value,
         tier: tier.value,
         members: null,
@@ -181,9 +180,8 @@ function clearForm() {
   window.location.reload()
 }
 
-function saveTeam() {
-  
-
+async function saveTeam() {
+  await userStore.saveTeam(teamObj);
 }
 </script>
 

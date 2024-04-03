@@ -24,7 +24,7 @@ async function querySql(statement, values) {
 }
 
 async function handleParams(branch, params) {
-  const statement = "SELECT * FROM " + branch + " WHERE tier=$1 LIMIT 25;";
+  const statement = "SELECT * FROM " + branch + " WHERE tier=$1 LIMIT 25 ORDER BY ASC;";
   const results = await querySql(statement, params);
   const output = {
     data: results
@@ -163,9 +163,7 @@ app.post("/apiv1/register", async (req, res) => {
 
 app.post('/apiv1/saveteam', async (req, res) => {
   const {id, username, team} = req.body;
-  console.log(req.body)
   const user = await userModel.findById(id).exec();
-  console.log(user)
   if (user.teams){
     user.teams.push(team);
   } else {

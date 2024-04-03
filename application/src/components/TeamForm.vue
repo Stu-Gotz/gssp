@@ -3,61 +3,15 @@ import { ref, onMounted } from 'vue';
 import { useTeamStore } from '../stores/teamStore';
 import { useStatStore } from '../stores/usageStore';
 import { useUserStore } from '../stores/userStore';
+import { gens, tiers } from '../utils/utils.js';
 
-const tiers = [
-  "ou",
-  "ubers",
-  "pu",
-  "nu",
-  "lc",
-  "uu",
-  "ru",
-  "2v2doubles",
-  "doubles",
-  "anythinggoes",
-  "almostanyability",
-  "balancedhackmons",
-  "battlefactory",
-  "battlespotsingles",
-  "battlespotdoubles",
-  "battlespotspecial",
-  "bssfactory",
-  "budoubles",
-  "busingles",
-  "camomons",
-  "challengecup",
-  "challengecup1v1",
-  "doublescustomgame",
-  "doublesou",
-  "doublesubers",
-  "doublesuu",
-  "hackmonscup",
-  "inversebattle",
-  "lcuu",
-  "linked",
-  "monotype",
-  "natureswap",
-  "nfe",
-  "ounomega",
-  "randombattle",
-  "randomdoublesbattle",
-  "randomtriplesbattle",
-  "stabmons",
-  "smogontriples",
-  "tiershift",
-  "ultrakalosclassic",
-  "vcg2018",
-  "vgc2014",
-  "vgc2015",
-  "vgc2016",
-  "vgc2017",
-  "vgc2019",
-  "vgc2020",
-  "zu",
-  "doubleslc"
-];
+// stores
+const teamStore = useTeamStore();
+const statStore = useStatStore();
+const userStore = useUserStore();
 
-const gens = ["gen1", "gen2", "gen3", "gen4", "gen5", "gen6", "gen7", "gen8", "gen9"];
+
+
 
 
 // Reactive variables from the form, which will be used to query the database to populate
@@ -68,16 +22,13 @@ const gen = ref("");
 const name = ref("")
 const teamName = ref("");
 
-let teamObj = {
+let teamObj = teamStore.team || {
   name: null,
   gen: null,
   tier: null,
   members: null,
 }
-// stores
-const teamStore = useTeamStore();
-const statStore = useStatStore();
-const userStore = useUserStore();
+
 
 
 onMounted(() => {
@@ -181,6 +132,7 @@ function clearForm() {
 }
 
 async function saveTeam() {
+  console.log(teamObj)
   await userStore.saveTeam(teamObj);
 }
 </script>

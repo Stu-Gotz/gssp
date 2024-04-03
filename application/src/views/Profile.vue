@@ -3,20 +3,24 @@ import { useUserStore } from '../stores/userStore';
 
 const userStore = useUserStore();
 
-const savedTeams = [
-  {
-    id: 1,
-    teamName: "savedTeam1",
-    preview: "this should be a list of tiny sprites of each pokemon",
-    summary: "A sun-based offensive weather team."
-  },
-  {
-    id: 2,
-    teamName: "savedTeam2",
-    preview: "this should be a list of tiny sprites of each pokemon",
-    summary: "A Gen4 stall team based on SkarmBliss + Nidoqueen core."
-  }
-]
+const savedTeams = userStore.getUserTeams;
+
+console.log(savedTeams)
+
+// const savedTeams = [
+//   {
+//     id: 1,
+//     teamName: "savedTeam1",
+//     preview: "this should be a list of tiny sprites of each pokemon",
+//     summary: "A sun-based offensive weather team."
+//   },
+//   {
+//     id: 2,
+//     teamName: "savedTeam2",
+//     preview: "this should be a list of tiny sprites of each pokemon",
+//     summary: "A Gen4 stall team based on SkarmBliss + Nidoqueen core."
+//   }
+// ]
 
 </script>
 
@@ -65,10 +69,10 @@ const savedTeams = [
         </thead>
         <tbody>
           <tr v-for="(data, i) in savedTeams" :key="i">
-            <td>{{ data.id }}</td>
-            <td>{{ data.teamName }}</td>
-            <td>{{ data.preview }}</td>
-            <td>{{ data.summary }}</td>
+            <td>{{ i+1 }}</td>
+            <td>{{ data.name }}</td>
+            <td>{{ data.members.map(a => a.name).join(", ") }}</td>
+            <td>Something should go here.</td>
           </tr>
         </tbody>
       </table>

@@ -14,7 +14,7 @@ const teamStore = useTeamStore();
     <div class="cards">
       <!-- This begins each card element. A goal in the project is to turn this into smaller components -->
       <!-- This is technically bad practice, I will optimize later if time is available. -->
-      <WelcomeCards v-if="!teamStore.team" />
+      <WelcomeCards v-if="!teamStore.team.members" />
       <!-- <CardFront v-else v-for="i in teamStore.team" :pokemon="i"/> -->
       <Card v-else :pokemon="teamStore.team.members" />
     </div>

@@ -24,7 +24,7 @@ async function querySql(statement, values) {
 }
 
 async function handleParams(branch, params) {
-  const statement = "SELECT * FROM " + branch + " WHERE tier=$1 LIMIT 25 ORDER BY ASC;";
+  const statement = "SELECT * FROM " + branch + " WHERE tier=$1 ORDER BY rank ASC LIMIT 25;";
   const results = await querySql(statement, params);
   const output = {
     data: results

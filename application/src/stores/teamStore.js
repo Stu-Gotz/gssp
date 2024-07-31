@@ -105,6 +105,12 @@ export const useTeamStore = defineStore("teamStore", {
       this.team.gen = teamObj.gen;
       this.team.tier = teamObj.tier;
       this.team.name = teamObj.name;
+      /* 
+        a good enough random generator, since i am capping at 5 teams, 
+        and i dont honestly forsee this getting over 10thousand users, 
+        it should suffice 
+      */
+      this.team.id = Math.random().toString(36).substring(2);
     },
   },
   persist: true,

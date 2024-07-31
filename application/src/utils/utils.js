@@ -1,7 +1,6 @@
-export const 
-    baseAPIUrl = "http://127.0.0.1:5500/apiv1",
-    gens = ["gen1", "gen2", "gen3", "gen4", "gen5", "gen6", "gen7", "gen8", "gen9"],
-    tiers = [
+const baseAPIUrl = "http://127.0.0.1:5500/apiv1";
+const gens = ["gen1", "gen2", "gen3", "gen4", "gen5", "gen6", "gen7", "gen8", "gen9"];
+const tiers = [
         "ou",
         "ubers",
         "pu",
@@ -53,3 +52,5 @@ export const
         "zu",
         "doubleslc"
       ];
+
+      export default { baseAPIUrl, gens, tiers }

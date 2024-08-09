@@ -7,3 +7,6 @@ pipeline/venv
 pipeline/__pycache__/
 pipeline/.vscode/
 .vscode/
+__pycache__/
+.venv/
+venv/

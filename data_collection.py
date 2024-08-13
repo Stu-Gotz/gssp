@@ -1,5 +1,6 @@
 from smog_usage_stats.UsageStatsLookup import BaseStatsSearch, MonotypeStatsSearch
 from smog_usage_stats.IndividualLookup import BaseChaosSearch, MonotypeChaosSearch
+
 # from smog_usage_stats.SQLInterface import SQLInterface
 from smog_usage_stats.Search import Search
 from datetime import datetime
@@ -9,6 +10,7 @@ from bs4 import BeautifulSoup
 import os
 import psycopg2
 from dotenv import load_dotenv
+import re
 
 # param_dict something like
 
@@ -19,6 +21,13 @@ from dotenv import load_dotenv
 #   isMonotype: True or False
 #   }
 class Updater:
+    #This is finished and optimised a great deal more. Currently runs in about 69-70s
+    #Need to add doc strings, remove print statements, clean it up a bit
+    #Interested in looking into one of asyncio, multithreading/processing to speed up
+    #even further but future me's problem.
+    def __init__(self, isMonotype: bool = False):
+        self.isMonotype = isMonotype
+
     @staticmethod
     def _set_query_object(param_dict: dict) -> Search:
         """
@@ -87,7 +96,7 @@ class Updater:
 
         gens = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
-        def get_tiers(date_obj: datetime) -> tuple[str]:
+        def get_stats_links(date_obj: datetime) -> tuple[str]:
             """Internal function to get the available tiers to query. Faster than
             iterating as it reduces the number of tiers by only picking from the
             available ones. There's definitely a better way to do this which I am
@@ -107,43 +116,40 @@ class Updater:
             r = requests.get(url)
             soup = BeautifulSoup(r.text, "html.parser")
             anchors = soup.find_all("a")
-            available_tiers = []
-            for a in anchors[6:]:
-                a = a.text.strip("gen")
-                a = a.split("-")[0]
-                for g in gens:
-                    if a.startswith(g):
-                        a = a[1:]
-                        print(a)
-                available_tiers.append(a)
-            return tuple(set(available_tiers))
+            available_stats = [url + a.text for a in anchors if a.text.endswith("-1500.txt")]
+            return available_stats
 
-        def get_data(date_obj: datetime, table: str, isMonotype: bool = False) -> None:
-            tiers = get_tiers(date_obj)
-            for g in gens:
-                for t in tiers:
-                    print(
-                        date_dict[table].strftime("%Y"),
-                    )
-                    q = self._set_query_object(
-                        {
-                            "year": date_dict[table].strftime("%Y"),
-                            "month": date_dict[table].strftime("%m"),
-                            "gen": g,
-                            "branch_param": t,
-                            "branch": "BaseStats",
-                            "isMonotype": isMonotype,
-                        }
-                    )
-                    print(q.base)
-                    q.search_and_save(pathname=table)
+        def get_data(
+            stats_links: list, date_obj: datetime, table: str, isMonotype: bool = False
+        ) -> None:
+            match_pattern = r"gen[0-9]"
+            for link in stats_links:
+                print(link)
+                link = link.removesuffix("-1500.txt")#.split matches any inside which was causing errors
+                gen = re.search(match_pattern, link).group()
+                gen = re.sub(r'[a-z]', '', gen)
+                ttier = re.split(match_pattern, link, maxsplit=1)
+                #max splits because there is a tier `moderngen2 which fucks it up`
+                print(ttier)
+                tier = ttier[-1]
+                q = self._set_query_object(
+                    {
+                        "year": date_dict[table].strftime("%Y"),
+                        "month": date_dict[table].strftime("%m"),
+                        "gen": gen,
+                        "branch_param": tier,
+                        "branch": "BaseStats",
+                        "isMonotype": isMonotype,
+                    }
+                )
+                print(f"Adding target url: {q.base}")
+                q.search_and_save(pathname=table)
 
         for k in date_dict.keys():
-            get_data(date_dict[k], k)
+            stats_links = get_stats_links(date_dict[k])
+            get_data(stats_links, date_dict[k], table=k, isMonotype=self.isMonotype)
 
         self._update_database()
-
-
 
 
 _COLUMNS = (
@@ -155,7 +161,7 @@ _COLUMNS = (
     "real",
     "real_pct",
     "date",
-    "tier"
+    "tier",
 )
 
 
@@ -168,12 +174,13 @@ class SQLInterface:
         host: str = None,
         port: str = None,
     ) -> None:
-        self.db_name = db_name
-        self.username = username
-        self.pwd = pwd
-        self.host = host
-        self.port = port
-        self.conn = self.connect(db_name, username, pwd, host, port)
+        self.db_name = db_name if db_name else os.environ.get("LOCAL_DATABASE")
+        self.username = username if username else os.environ.get("LOCAL_USER")
+        self.pwd = pwd if pwd else os.environ.get("LOCAL_PASS")
+        self.host = host if host else os.environ.get("LOCAL_HOST")
+        self.port = port if host else os.environ.get("LOCAL_PORT}")
+
+        self.conn = self.connect(self.db_name, self.username, self.pwd, self.host, self.port)
         # self.cur = self.conn.cursor() if self.conn else None
 
     def connect(
@@ -184,22 +191,22 @@ class SQLInterface:
         host: str = None,
         port: str = None,
     ) -> psycopg2.extensions.connection:
-        """
-        
-        """
+        """ """
         connection = psycopg2.connect(
             database=database if database else os.environ.get("LOCAL_DATABASE"),
             user=user if user else os.environ.get("LOCAL_USER"),
             password=password if password else os.environ.get("LOCAL_PASS"),
             host=host if host else os.environ.get("LOCAL_HOST"),
-            port=port if port else os.environ.get("LOCAL_PORT"),
+            port=port if host else os.environ.get("LOCAL_PORT"),
         )
 
         if connection:
             self.conn = connection
-            print("connected")
+            print(f"Connected to {database}.")
         else:
-            raise ConnectionError("No database connection was established. Please check your credentials.")
+            raise ConnectionError(
+                "No database connection was established. Please check your credentials."
+            )
         return connection
 
     def _create_cursor(self) -> psycopg2.extensions.cursor:
@@ -255,7 +262,6 @@ class SQLInterface:
     def load_data_to_table(self, target_dir: str, target_table: str) -> None:
         cursor = self._create_cursor()
 
-        print(target_dir)
         for source in os.listdir(target_dir):
             with open(os.path.join(target_dir, source), "r") as truth:
                 next(truth)
@@ -272,10 +278,56 @@ class SQLInterface:
         cursor.close()
 
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
 
     load_dotenv(dotenv_path="./application/.env")
 
-    SQLInterface = SQLInterface()
-    Updater().update_monthly()
+    sqli = SQLInterface()
+    sqli.update_tables()
+    #gotta do the dirlist and pass the current, previous, tma dirs and tables
+    sqli.load_data_to_table()
+    sqli.close_connection()
+
+    # start = time.time()
+    # try: 
+    #     Updater(isMonotype=False).update_monthly()
+    # except:
+    #     end = time.time()
+    #     print(f'Elapsed time: {end - start}')
+    
+
+    
+    # print(f'Elapsed time: {end - start}')
+
+    def get_tiers():  # date_obj: datetime) -> tuple[str]:
+        """Internal function to get the available tiers to query. Faster than
+        iterating as it reduces the number of tiers by only picking from the
+        available ones. There's definitely a better way to do this which I am
+        going to change to that just uses the anchor tags ending in -1500.txt,
+        but at the moment this is good enough for a solution to work on perfecting.
+
+            Params:
+            date_object (datetime): a datetime object of at least YYYY-MM format
+
+            Returns:
+            tuple[str] -> a tuple of tiers, as string values
+        """
+        # year = date_obj.strftime("%Y")
+        # month = date_obj.strftime("%m")
+        url = f"https://www.smogon.com/stats/2024-07/"
+
+        r = requests.get(url)
+        soup = BeautifulSoup(r.text, "html.parser")
+        anchors = soup.find_all("a")
+        good_urls = [url + a.text for a in anchors if a.text.endswith("-1500.txt")]
+        print(good_urls)
+
+    # get_tiers()
+
+# gen_pattern = r"(gen[0-9])"
+# link = "https://www.smogon.com/stats/2024-07/gen71v1-1500.txt"
+# # tier = re.split(r"gen[0-9]", link)[-1]
+# gen = re.search(gen_pattern, link).group()
+# gen = re.sub(r'[a-z]', '', gen)
+# # gen = gen.replace(r'[a-z]', '')
+# print(gen)

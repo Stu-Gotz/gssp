@@ -19,7 +19,7 @@ const userStore = useUserStore();
 const userInput = ref(null);
 const tier = ref("");
 const gen = ref("");
-const name = ref("")
+const name = ref("");
 const teamName = ref("");
 
 let teamObj = teamStore.team || {
@@ -27,7 +27,7 @@ let teamObj = teamStore.team || {
   gen: null,
   tier: null,
   members: null,
-}
+};
 
 
 
@@ -57,15 +57,15 @@ async function submitForm() {
     // console.log(errors.value);
   } else {
     teamObj = {
-        name: name.value || defaultName,
-        gen: gen.value,
-        tier: tier.value,
-        members: null,
-      }
+      name: name.value || defaultName,
+      gen: gen.value,
+      tier: tier.value,
+      members: null,
+    };
     teamObj.members = await teamStore.parseInput(userInput.value);
-    
+
     const tranche = gen.value + tier.value;
-    
+
     await statStore.setCurrent(tranche);
     await statStore.setPrevious(tranche);
     await statStore.setOlder(tranche);
@@ -128,11 +128,11 @@ async function submitForm() {
 function clearForm() {
   userInput.value = "";
   teamStore.$reset();
-  window.location.reload()
+  window.location.reload();
 }
 
 async function saveTeam() {
-  console.log(teamObj)
+  console.log(teamObj);
   await userStore.saveTeam(teamObj);
 }
 </script>
@@ -144,7 +144,8 @@ async function saveTeam() {
       <li v-for="{ idx, err } in errors.value">{{ idx }} - {{ err }}</li>
     </ul>
     <label class="team-name" for="teamName">Provide a team name (optional):</label>
-    <input v-model="name" class="form-control ps-2 pt-0 mx-2 mb-2 mt-0" type="text" id="teamName" placeholder="Team Name">
+    <input v-model="name" class="form-control ps-2 pt-0 mx-2 mb-2 mt-0" type="text" id="teamName"
+      placeholder="Team Name">
     <label class="form-label" for="genInput">Please select the generation:</label>
     <select v-model="gen" class="form-select ps-2 pt-0 mx-2 mb-2 mt-0" name="genInput" id="genInput">
       <option v-for="gen in gens">{{ gen }}</option>
@@ -158,9 +159,12 @@ async function saveTeam() {
       id="teamPasteArea" v-model="userInput">
     </textarea>
     <div class="d-flex align-items-center justify-content-around">
-      <button @click="submitForm()" type="button" class="btn btn-success form-control w-25">Submit</button>
-      <button @click="clearForm()" type="button" class="btn btn-danger form-control w-25">Clear</button>
-      <button v-if="userStore.getLoginStatus" @click="saveTeam()" type="button" class="btn btn-primary form-control w-25">Save</button>
+      <button @click="submitForm()" type="button" class="btn btn-success form-control
+      shadow-sm w-50 border-outset">Submit</button>
+      <button @click="clearForm()" type="button"
+        class="btn btn-danger form-control shadow-sm w-50 border-outset">Clear</button>
+      <button v-if="userStore.getLoginStatus" @click="saveTeam()" type="button"
+        class="btn btn-primary form-control w-25">Save</button>
     </div>
   </form>
 </template>
@@ -175,6 +179,7 @@ form {
   padding: 10px;
   resize: none;
 
+  margin-bottom: 5px;
   box-sizing: border-box;
   // background-color:#a79bbc;
   border: none;

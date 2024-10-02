@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { useLocalStorage } from '@vueuse/core';
-import { baseAPIUrl } from "../utils/utils";
+import { baseAPIUrl } from "../utils/utils.js";
 
 export const useUserStore = defineStore("userStore", {
   state: () => ({

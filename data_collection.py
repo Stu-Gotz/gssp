@@ -285,7 +285,8 @@ if __name__ == "__main__":
     sqli = SQLInterface()
     sqli.update_tables()
     #gotta do the dirlist and pass the current, previous, tma dirs and tables
-    sqli.load_data_to_table()
+    tables = ["current", "previous", "tma"]
+    [sqli.load_data_to_table(target_dir=f'./data/{t}', target_table=t) for t in tables]
     sqli.close_connection()
 
     # start = time.time()

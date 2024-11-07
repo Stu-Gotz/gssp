@@ -41,7 +41,7 @@ onMounted(() => {
 const errors = ref([]);
 
 async function submitForm() {
-  const defaultName = `=== ${gen.value}${tier.value} ${teamName.value}===`;
+  const defaultName = `=== ${gen.value}${tier.value} ${teamName.value} ===`;
   errors.value = [];
   // console.log(errors.value);
 

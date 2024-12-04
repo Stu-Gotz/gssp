@@ -1,4 +1,20 @@
 <script setup>
+/* need to load current stats as soon as page loads
+   routing calls on form submit, reload stats to object.
+   cache results ?10min?
+   selectable rows, filtered columns (might be builtin to boostrap?)
+   highlight team members 
+
+*/
+import { useTeamStore } from '../stores/teamStore';
+import { useStatStore } from '../stores/usageStore';
+import { storeToRefs } from 'pinia';
+
+const rootGen = "gen9ou";
+const statStore = useStatStore();
+
+const { current, previous, tma } = storeToRefs(statStore);
+
 
 </script>
 

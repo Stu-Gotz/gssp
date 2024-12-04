@@ -23,7 +23,7 @@
     "happy-dom": "^6.0.4",
     "jsonwebtoken": "^9.0.2",
     "koffing": "^1.0.0",
-    "mongoose": "^7.8.2",
+    "mongoose": "^7.8.3",
     "pg": "^8.13.0",
     "pinia": "^2.2.3",
     "pinia-plugin-persistedstate": "^3.2.3",

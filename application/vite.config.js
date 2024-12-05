@@ -60,4 +60,11 @@ export default defineConfig({
       NodeModulesPolyfillPlugin(),
     ],
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        api: 'modern'
+      }
+    }
+  }
 });

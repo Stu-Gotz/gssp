@@ -53,11 +53,13 @@ const { current, previous, tma } = storeToRefs(statStore);
     <caption>List of usage stats from [TIER] on [DATE] as of [CURRENT DATE]</caption>
     <thead>
       <tr>
-        <th class="table-info" scope="col">col1</th>
-        <th scope="col">col2</th>
-        <th scope="col">col3</th>
-        <th scope="col">col4</th>
-        <th scope="col">col5</th>
+      <!-- rank,pokemon,usage_pct,raw_usage,raw_pct,real,real_pct,dex,date,tier -->
+        <th class="table-info" scope="col">Rank</th>
+        <th class="table-info" scope="col">Change</th>
+        <th class="table-info" scope="col">Name</th>
+        <th class="table-info" scope="col">Raw Usage</th>
+        <th class="table-info" scope="col">Usage %</th>
+        <th class="table-info" scope="col">Tier</th>
       </tr>
     </thead>
     <tbody class="table-group-divider">

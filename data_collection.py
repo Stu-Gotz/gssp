@@ -1,16 +1,28 @@
-from smog_usage_stats.UsageStatsLookup import BaseStatsSearch, MonotypeStatsSearch
-from smog_usage_stats.IndividualLookup import BaseChaosSearch, MonotypeChaosSearch
+from smog_usage_stats.usageStats import BaseStatsSearch, MonotypeStatsSearch
+from smog_usage_stats.chaosStats import BaseChaosSearch, MonotypeChaosSearch
+from smog_usage_stats.search import _Search as Search
 
-# from smog_usage_stats.SQLInterface import SQLInterface
-from smog_usage_stats.Search import Search
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
-import requests
-from bs4 import BeautifulSoup
-import os
-import psycopg2
-from dotenv import load_dotenv
 import re
+import os
+import sys
+import psycopg2
+import requests
+
+from bs4 import BeautifulSoup
+from datetime import datetime
+from dotenv import load_dotenv
+from dateutil.relativedelta import relativedelta
+
+## AUTHOR'S NOTE
+# Things I need to fucking do:
+# 1. clean up code. to be more precise, reduce some of the redundancy, probably tidy up the sql functionality
+#    and just make it a bit more professional. Also probably stop using "fuck" in comments
+# 2. Implement streaming option. Something to the effect of:
+#    [source data](get) ->
+#    [parse into dataframe (polars?)] ->
+#    {load sequentially to db}
+# 3. add a CLI function if possible, or (power)shell script
+
 
 # param_dict something like
 
@@ -21,10 +33,10 @@ import re
 #   isMonotype: True or False
 #   }
 class Updater:
-    #This is finished and optimised a great deal more. Currently runs in about 69-70s
-    #Need to add doc strings, remove print statements, clean it up a bit
-    #Interested in looking into one of asyncio, multithreading/processing to speed up
-    #even further but future me's problem.
+    # This is finished and optimised a great deal more. Currently runs in about 69-70s
+    # Need to add doc strings, remove print statements, clean it up a bit
+    # Interested in looking into one of asyncio, multithreading/processing to speed up
+    # even further but future me's problem.
     def __init__(self, isMonotype: bool = False):
         self.isMonotype = isMonotype
 
@@ -70,6 +82,7 @@ class Updater:
         """Updates the database with new data."""
         sqli = SQLInterface()
         sqli.connect()
+        print("Connected!")
         sqli.update_tables()
         for i in ("current", "previous", "tma"):
             sqli.load_data_to_table(i)
@@ -88,13 +101,16 @@ class Updater:
         # back.
         # I kind of already did this in the old version, so I'll just look there and
         # see how to handle it.
+
+        # ADDITIONAL FUTURE CHANGES:
+        #   Include stream to database to skip saving.
         date_dict = {
             "current": today - relativedelta(months=1),
             "previous": today - relativedelta(months=2),
             "tma": today - relativedelta(months=3),
         }
 
-        gens = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
+        # gens = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
         def get_stats_links(date_obj: datetime) -> tuple[str]:
             """Internal function to get the available tiers to query. Faster than
@@ -104,7 +120,7 @@ class Updater:
             but at the moment this is good enough for a solution to work on perfecting.
 
                 Params:
-                date_object (datetime): a datetime object of at least YYYY-MM format
+                date_obj (datetime): a datetime object of at least YYYY-MM format.
 
                 Returns:
                 tuple[str] -> a tuple of tiers, as string values
@@ -116,21 +132,32 @@ class Updater:
             r = requests.get(url)
             soup = BeautifulSoup(r.text, "html.parser")
             anchors = soup.find_all("a")
-            available_stats = [url + a.text for a in anchors if a.text.endswith("-1500.txt")]
+            available_stats = [
+                url + a.text for a in anchors if a.text.endswith("-1500.txt")
+            ]
             return available_stats
 
-        def get_data(
-            stats_links: list, date_obj: datetime, table: str, isMonotype: bool = False
-        ) -> None:
+        def get_data(stats_links: list, table: str, isMonotype: bool = False) -> None:
+            """Function to retrieve data from the source, parse it and save an output.
+
+            Params:
+                stat_links(list): A list of valid urls of smogon stat's pages
+                table(str): A string value of the time period of interest, eg: current for most recent capture.
+                isMonotype(bool): Boolean flag to set for monotype search. Default is `False`
+
+            Returns:
+                None
+
+            """
             match_pattern = r"gen[0-9]"
             for link in stats_links:
-                print(link)
-                link = link.removesuffix("-1500.txt")#.split matches any inside which was causing errors
+                link = link.removesuffix(
+                    "-1500.txt"
+                )  # .split matches any inside which was causing errors
                 gen = re.search(match_pattern, link).group()
-                gen = re.sub(r'[a-z]', '', gen)
+                gen = re.sub(r"[a-z]", "", gen)
                 ttier = re.split(match_pattern, link, maxsplit=1)
-                #max splits because there is a tier `moderngen2 which fucks it up`
-                print(ttier)
+                # max splits because there is a tier `moderngen2 which fucks it up`
                 tier = ttier[-1]
                 q = self._set_query_object(
                     {
@@ -145,24 +172,25 @@ class Updater:
                 print(f"Adding target url: {q.base}")
                 q.search_and_save(pathname=table)
 
-        for k in date_dict.keys():
-            stats_links = get_stats_links(date_dict[k])
-            get_data(stats_links, date_dict[k], table=k, isMonotype=self.isMonotype)
+        # for k in date_dict.keys():
+        #     stats_links = get_stats_links(date_dict[k])
+        #     get_data(stats_links, table=k, isMonotype=self.isMonotype)
 
         self._update_database()
 
 
-_COLUMNS = (
-    "rank",
-    "pokemon",
-    "usage_pct",
-    "raw_usage",
-    "raw_pct",
-    "real",
-    "real_pct",
-    "date",
-    "tier",
-)
+_COLUMNS = {
+    # "id_": "SERIAL PRIMARY KEY",
+    "rank": "INTEGER",
+    "pokemon": "VARCHAR(50)",
+    "usage_pct": "FLOAT",
+    "raw_usage": "INTEGER",
+    "raw_pct": "FLOAT",
+    "real": "INTEGER",
+    "real_pct": "FLOAT",
+    "date": "VARCHAR(50)",
+    "tier": "VARCHAR(50)",
+}
 
 
 class SQLInterface:
@@ -180,8 +208,13 @@ class SQLInterface:
         self.host = host if host else os.environ.get("LOCAL_HOST")
         self.port = port if host else os.environ.get("LOCAL_PORT}")
 
-        self.conn = self.connect(self.db_name, self.username, self.pwd, self.host, self.port)
-        # self.cur = self.conn.cursor() if self.conn else None
+        self.conn = self.connect(
+            database=self.db_name,
+            user=self.username,
+            password=self.pwd,
+            host=self.host,
+            port=self.port,
+        )
 
     def connect(
         self,
@@ -207,6 +240,7 @@ class SQLInterface:
             raise ConnectionError(
                 "No database connection was established. Please check your credentials."
             )
+
         return connection
 
     def _create_cursor(self) -> psycopg2.extensions.cursor:
@@ -223,27 +257,7 @@ class SQLInterface:
 
     def update_tables(self) -> None:
         db_names = ("current", "previous", "tma")
-        columns = (
-            "id_ SERIAL PRIMARY KEY,\n"
-            + _COLUMNS[0]
-            + " INTEGER,\n"
-            + _COLUMNS[1]
-            + " VARCHAR(50),\n"
-            + _COLUMNS[2]
-            + " FLOAT,\n"
-            + _COLUMNS[3]
-            + " INTEGER,\n"
-            + _COLUMNS[4]
-            + " FLOAT,\n"
-            + _COLUMNS[5]
-            + " INTEGER,\n"
-            + _COLUMNS[6]
-            + " FLOAT, \n"
-            + _COLUMNS[7]
-            + " VARCHAR(50), \n"
-            + _COLUMNS[8]
-            + " VARCHAR(50)"
-        )
+        columns = ",\n".join(f"{k} {v}" for k, v in _COLUMNS.items())
 
         cursor = self._create_cursor()
 
@@ -259,11 +273,11 @@ class SQLInterface:
         self._close_cursor(cursor)
         return
 
-    def load_data_to_table(self, target_dir: str, target_table: str) -> None:
+    def load_data_to_table(self, target_table: str) -> None:
         cursor = self._create_cursor()
 
-        for source in os.listdir(target_dir):
-            with open(os.path.join(target_dir, source), "r") as truth:
+        for source in os.listdir(target_table):
+            with open(os.path.join(target_table, source), "r") as truth:
                 next(truth)
                 cursor.copy_from(truth, target_table, columns=_COLUMNS, sep=",")
                 self.conn.commit()
@@ -279,52 +293,58 @@ class SQLInterface:
 
 
 if __name__ == "__main__":
+    load_dotenv(dotenv_path=".env")
+    if sys.argv[1] is None or sys.argv[1] == "output":
+        import time
 
-    load_dotenv(dotenv_path="./application/.env")
+        start = time.time()
+        try:
+            Updater().update_monthly()
+        except ValueError:
+            end = time.time()
+            print(f"Process failed. Elapsed time: {end - start}")
 
-    sqli = SQLInterface()
-    sqli.update_tables()
-    #gotta do the dirlist and pass the current, previous, tma dirs and tables
-    tables = ["current", "previous", "tma"]
-    [sqli.load_data_to_table(target_dir=f'./data/{t}', target_table=t) for t in tables]
-    sqli.close_connection()
+        print(f"Process complete. Elapsed time: {time.time() - start}")
+        exit(1)
+    elif sys.argv[1] == "stream":
+        print("Implement streaming you lazy jackass.")
+        pass
 
-    # start = time.time()
-    # try: 
-    #     Updater(isMonotype=False).update_monthly()
-    # except:
-    #     end = time.time()
-    #     print(f'Elapsed time: {end - start}')
-    
+    ##### THIS IS ALL JUST TESTING AND FOR TESTING NEW FEATURES STUFF IF IT WORKS
 
-    
-    # print(f'Elapsed time: {end - start}')
+    # sqli = SQLInterface()
+    # sqli.update_tables()
+    # # gotta do the dirlist and pass the current, previous, tma dirs and tables
+    # tables = ["current", "previous", "tma"]
+    # [sqli.load_data_to_table(target_dir=f"./data/{t}", target_table=t) for t in tables]
+    # sqli.close_connection()
 
-    def get_tiers():  # date_obj: datetime) -> tuple[str]:
-        """Internal function to get the available tiers to query. Faster than
-        iterating as it reduces the number of tiers by only picking from the
-        available ones. There's definitely a better way to do this which I am
-        going to change to that just uses the anchor tags ending in -1500.txt,
-        but at the moment this is good enough for a solution to work on perfecting.
+    # def get_tiers():  # date_obj: datetime) -> tuple[str]:
+    #     """Internal function to get the available tiers to query. Faster than
+    #     iterating as it reduces the number of tiers by only picking from the
+    #     available ones. There's definitely a better way to do this which I am
+    #     going to change to that just uses the anchor tags ending in -1500.txt,
+    #     but at the moment this is good enough for a solution to work on perfecting.
 
-            Params:
-            date_object (datetime): a datetime object of at least YYYY-MM format
+    #         Params:
+    #         date_object (datetime): a datetime object of at least YYYY-MM format
 
-            Returns:
-            tuple[str] -> a tuple of tiers, as string values
-        """
-        # year = date_obj.strftime("%Y")
-        # month = date_obj.strftime("%m")
-        url = f"https://www.smogon.com/stats/2024-07/"
+    #         Returns:
+    #         tuple[str] -> a tuple of tiers, as string values
+    #     """
+    #     # year = date_obj.strftime("%Y")
+    #     # month = date_obj.strftime("%m")
+    #     url = f"https://www.smogon.com/stats/2024-07/"
 
-        r = requests.get(url)
-        soup = BeautifulSoup(r.text, "html.parser")
-        anchors = soup.find_all("a")
-        good_urls = [url + a.text for a in anchors if a.text.endswith("-1500.txt")]
-        print(good_urls)
+    #     r = requests.get(url)
+    #     soup = BeautifulSoup(r.text, "html.parser")
+    #     anchors = soup.find_all("a")
+    #     good_urls = [url + a.text for a in anchors if a.text.endswith("-1500.txt")]
+    #     print(good_urls)
 
     # get_tiers()
 
+# if __name__ == "__main__":
 # gen_pattern = r"(gen[0-9])"
 # link = "https://www.smogon.com/stats/2024-07/gen71v1-1500.txt"
 # # tier = re.split(r"gen[0-9]", link)[-1]

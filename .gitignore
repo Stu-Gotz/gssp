@@ -11,3 +11,7 @@ __pycache__/
 .venv/
 venv/
 /data/
+.env
+current/
+tma/
+previous/

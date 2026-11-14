@@ -23,12 +23,9 @@ const userData = reactive({
 let registrationSchema = Yup.object({
   username: Yup.string().min(5, 'Username must be at least 5 characters.').max(30).required("Username is required."),
   email: Yup.string().min(5, "Email must be at least 5 characters.").email().required("Email is required."),
-  confirmEmail: Yup.string().oneOf([Yup.ref('email'), null], 'Emails much match.'),
-  password: Yup.string().min(8).max(20).minLowercase(1, 'Password must be at least 8 characters.')
-    .minUppercase(1, 'Password must have at least one capital letter.')
-    .minNumbers(1, 'Password must contain at least one number..')
-    .minSymbols(1, 'Password must contain at least one symbol.').required(),
-  confirmPass: Yup.string().oneOf([Yup.ref('password'), null], 'Passwords must match.')
+  confirmEmail: Yup.string().oneOf([Yup.ref('email'), null], 'Emails must match.'),
+  password: Yup.string().min(8).max(20).minLowercase(1).minUppercase(1).minNumbers(1).minSymbols(1,).required(),
+  confirmPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Passwords must match.')
 });
 
 function resetErrors(errorList){
@@ -36,7 +33,7 @@ function resetErrors(errorList){
 }
 async function register() {
 
-  registrationSchema.validate(userData, { abortEarly: false })
+  await registrationSchema.validate(userData, { abortEarly: false })
     .then(userData => {
       resetErrors(errors.value);
     })
@@ -47,8 +44,8 @@ async function register() {
     
     if(errors.value.length === 0) {
       const registrationData = {username: userData.username, password: userData.password, email: userData.email};
-      if(authStore.registerUser(registrationData)){
-
+      if(await authStore.registerUser(registrationData)){
+        
         route.push({path: '/', replace: true});
       }
       

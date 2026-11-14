@@ -31,7 +31,7 @@ console.log(savedTeams)
     <div class="profile-header card row row-cols-2" style="width: 20rem;">
       <div class="pfp col">
         <!-- profile image, probably default to 300x300 -->
-        <img src="/assets/default.jpg" alt="" srcset="" width="300" height="300">
+        <img src="" alt="" srcset="" width="300" height="300">
       </div>
       <div class="pfd col">
         <!-- Profile data (username, join date, etc here) -->

@@ -12,8 +12,9 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
+from django.db import IntegrityError
 
-from .db import mongo_users, query_sql
+from .db import query_sql
 
 logger = logging.getLogger(__name__)
 
@@ -103,11 +104,12 @@ def login(request):
     rows = query_sql("SELECT get_user_profile(%s)", [username])
     user_profile = rows[0]["profile"]
     now = int(time.time())
+
     token = jwt.encode(
         {
             "sub": str(user["id"]),
-            "username": username,
-            "role": user["role"],
+            "username": user_profile["username"],
+            "role": user_profile["role"],
             "iat": now,
             "exp": now + 7 * 24 * 60 * 60,
         },
@@ -118,8 +120,8 @@ def login(request):
     return JsonResponse(
         {
             "id": user["id"],
-            "username": username,
-            "role": user["role"],
+            "username": user_profile["username"],
+            "role": user_profile["role"],
             "profileInfo": {**user_profile["profile"], "teams": user_profile["teams"]},
             "token": token,
         }
@@ -138,18 +140,15 @@ def register(request):
     if not username or not password:
         raise BadRequest("Please provide username and password.")
 
-    if query_sql("SELECT 1 FROM users WHERE username = %s;", [username]):
-        return JsonResponse(
-            {"message": "Username already in use, please choose another username."},
-            status=409,
-        )
-
     hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt(rounds=10)).decode()
 
-    # Create the Mongo profile first to get its id
-
-    query_sql("INSERT INTO users (%s, %s, %s);", [username, hashed, email])
-
+    try:
+        query_sql(
+            "INSERT INTO users (username, password, email) VALUES (%s, %s, %s);",
+            [username, hashed, email],
+        )
+    except IntegrityError:
+        return JsonResponse({"message": "Username already in use."}, status=409)
     return JsonResponse({"message": f"Successfully registered {username}"}, status=201)
 
 
@@ -160,28 +159,35 @@ def register(request):
 @require_POST
 @json_errors
 def save_team(request):
-    body = read_json(request)
-
     auth_chk = request.headers.get("Authorization", "")
     if not auth_chk:
-        return JsonResponse({"error": "Missing authorization."}, status=401)
+        return JsonResponse({"message": "Missing authorization."}, status=401)
     try:
         if auth_chk.startswith("Bearer"):
-            jwt.decode(body.get("token"), settings.JWT_SECRET, algoriths=["HS256"])
-
-            user_id = body.get("id")
-            username = body.get("username")
-            team = body.get("team")
-
-            # $push creates the teams array if it doesn't exist yet.
-            result = query_sql("INSERT INTO ")
-            if result.matched_count == 0:
-                return JsonResponse({"message": "User not found."}, status=404)
-
-            return JsonResponse(
-                {"message": f"Successfully updated {username}'s teams."}
+            payload = jwt.decode(
+                auth_chk.removeprefix("Bearer ").strip(),
+                settings.JWT_SECRET,
+                algoriths=["HS256"],
             )
     except jwt.InvalidTokenError as e:
         return JsonResponse({"message": f"Invalid token {str(e)}"}, status=401)
 
-    print("If you see this it means auth is never checked.")
+    body = read_json(request)
+    user_id = payload.get["sub"]
+    team = body.get("team")
+    tier = team["gen"] + team["tier"]
+
+    if not isinstance(team, dict) or "gen" not in team or "tier" not in team:
+        raise BadRequest("Request must include a team with a gen and tier.")
+
+    try:
+        result = query_sql(
+            "INSERT INTO teams (user_id, tier, data) VALUES (%s, %s, %s::jsonb) RETURNING id;",
+            [user_id, tier, json.dumps(team)],
+        )
+    except IntegrityError:
+        return JsonResponse({"message": "User not found."}, status=401)
+
+    return JsonResponse(
+        {"message": f"Successfully updated {payload['username']}'s teams."}
+    )

@@ -1,18 +1,21 @@
 import { defineStore } from "pinia";
-import { useLocalStorage } from '@vueuse/core';
 import { baseAPIUrl } from "../utils/utils.js";
 
 export const useUserStore = defineStore("userStore", {
   state: () => ({
-    user: {}
+    user: {
+      id: null,
+      username: null,
+      profileInfo: null,
+      role: null,
+      token: null,
+      isLoggedIn: false
+    }
   }),
   actions: {
     setUserData(userData) {
-
       this.user = userData;
       this.user.isLoggedIn = true;
-
-      console.log(this.user)
     },
     logout() {
       this.user.username = null;
@@ -20,29 +23,36 @@ export const useUserStore = defineStore("userStore", {
       this.user.role = null;
       this.user.profileInfo = null;
       this.user.id = null;
+      this.user.token = null;
     },
     async saveTeam(team) {
-      if (this.user.profileInfo.teams) {
-        this.user.profileInfo.teams.push(team)
-      } else {
-        this.user.profileInfo.teams = [team]
+      if (!this.user.isLoggedIn === true) {
+        throw new Error("You do not have permission to do that, please login.")
+      }
+
+      if (this.user.profileInfo.teams & this.user.profileInfo.teams.length >= 5) {
+        throw new Error("Maximum number of teams reached, please delete a team to save or choose one to overwrite.")
       }
       try {
         const body = {
-          id: this.user.id,
-          username: this.user.username,
           team: team
         }
-        const headers = {
+        const options = {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${this.user.token}`
           },
           body: JSON.stringify(body)
         }
-        const res = await fetch(`${baseAPIUrl}/saveteam`, headers);
+        const res = await fetch(`${baseAPIUrl}/saveteam`, options);
+
         if (res.status === 200) {
-          console.log("Team has been saved.")
+          if (this.user.profileInfo.teams) {
+            this.user.profileInfo.teams.push(team)
+          } else {
+            this.user.profileInfo.teams = [team]
+          }
         }
       } catch (err) {
         console.log(err)

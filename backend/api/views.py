@@ -6,7 +6,7 @@ import traceback
 
 import bcrypt
 import jwt
-import psycopg2
+import re
 
 from django.conf import settings
 from django.http import JsonResponse
@@ -69,7 +69,7 @@ def read_json(request):
 def leaderboard(request, table, tier):
     # `table` comes from urls.py, never from the request, so it is safe to format in.
     rows = query_sql(
-        f"SELECT * FROM {table} WHERE tier = %s ORDER BY rank ASC LIMIT 25",
+        f"SELECT * FROM {table} WHERE tier = %s ORDER BY rank ASC LIMIT 25;",
         [tier],
     )
     return JsonResponse({"data": rows})
@@ -90,7 +90,7 @@ def login(request):
         raise BadRequest("Please provide username and password.")
 
     rows = query_sql(
-        "SELECT id, role, password FROM users WHERE username = %s",
+        "SELECT id, role, password FROM users WHERE username = %s;",
         [username],
     )
     user = rows[0] if rows else None
@@ -101,7 +101,7 @@ def login(request):
     ):
         return JsonResponse({"message": "Invalid login credentials."}, status=401)
 
-    rows = query_sql("SELECT get_user_profile(%s)", [username])
+    rows = query_sql("SELECT get_user_profile(%s) AS profile;", [username])
     user_profile = rows[0]["profile"]
     now = int(time.time())
 
@@ -139,6 +139,15 @@ def register(request):
 
     if not username or not password:
         raise BadRequest("Please provide username and password.")
+    if not username.isalnum() or len(username) < 5:
+        raise BadRequest("Invalid username.")
+    pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+    if (
+        not re.search(pattern, password)
+        or len(password) < 8
+        or len(password.encode("utf-8")) > 72
+    ):
+        raise BadRequest("Password is invalid.")
 
     hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt(rounds=10)).decode()
 
@@ -181,7 +190,7 @@ def save_team(request):
         raise BadRequest("Request must include a team with a gen and tier.")
 
     try:
-        result = query_sql(
+        query_sql(
             "INSERT INTO teams (user_id, tier, data) VALUES (%s, %s, %s::jsonb) RETURNING id;",
             [user_id, tier, json.dumps(team)],
         )

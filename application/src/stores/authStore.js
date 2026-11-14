@@ -28,7 +28,7 @@ export const useAuthStore = defineStore("authStore", {
           console.log("Unable to login.");
         }
       } catch (err) {
-        
+
         console.log(err.message);
         return false;
       }
@@ -46,12 +46,11 @@ export const useAuthStore = defineStore("authStore", {
         console.log(res)
         if (res.status === 201) {
           console.log("Successful registration");
-          const data = await res.json();
           //login user after registration, saves user clicks
-          this.loginUser({username: registerForm.username, password: registerForm.password});
-          return true;
+          result = this.loginUser({ username: registerForm.username, password: registerForm.password });
+          return result;
         } else {
-          console.log("Unable to register user");
+          console.log(result);
         }
       } catch (err) {
         console.log(err.message);

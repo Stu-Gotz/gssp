@@ -5,6 +5,7 @@ from smog_usage_stats.search import _Search as Search
 import re
 import os
 import sys
+import time
 import psycopg2
 import requests
 
@@ -294,30 +295,30 @@ class SQLInterface:
 
 if __name__ == "__main__":
     load_dotenv(dotenv_path=".env")
-    if sys.argv[1] is None or sys.argv[1] == "output":
-        import time
 
-        start = time.time()
-        try:
-            Updater().update_monthly()
-        except ValueError:
-            end = time.time()
-            print(f"Process failed. Elapsed time: {end - start}")
+    # Updater().update_monthly()
+    # if sys.argv[0] is None or sys.argv[0] == "output":
+    #     start = time.time()
+    #     try:
+    #         Updater().update_monthly()
+    #     except ValueError:
+    #         end = time.time()
+    #         print(f"Process failed. Elapsed time: {end - start}")
 
-        print(f"Process complete. Elapsed time: {time.time() - start}")
-        exit(1)
-    elif sys.argv[1] == "stream":
-        print("Implement streaming you lazy jackass.")
-        pass
+    #     print(f"Process complete. Elapsed time: {time.time() - start}")
+    #     exit(1)
+    # elif sys.argv[0] == "stream":
+    #     print("Implement streaming you lazy jackass.")
+    #     pass
 
     ##### THIS IS ALL JUST TESTING AND FOR TESTING NEW FEATURES STUFF IF IT WORKS
 
-    # sqli = SQLInterface()
-    # sqli.update_tables()
-    # # gotta do the dirlist and pass the current, previous, tma dirs and tables
-    # tables = ["current", "previous", "tma"]
-    # [sqli.load_data_to_table(target_dir=f"./data/{t}", target_table=t) for t in tables]
-    # sqli.close_connection()
+    sqli = SQLInterface()
+    sqli.update_tables()
+    # gotta do the dirlist and pass the current, previous, tma dirs and tables
+    tables = ["current", "previous", "tma"]
+    [sqli.load_data_to_table(target_table=t) for t in tables]
+    sqli.close_connection()
 
     # def get_tiers():  # date_obj: datetime) -> tuple[str]:
     #     """Internal function to get the available tiers to query. Faster than

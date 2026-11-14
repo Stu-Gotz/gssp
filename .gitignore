@@ -15,3 +15,6 @@ venv/
 current/
 tma/
 previous/
+OLD/
+test_update_a_database.py
+.todo

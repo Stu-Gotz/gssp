@@ -14,6 +14,9 @@ export default defineConfig({
   test: {
     globals: true,
   },
+  server: {
+    proxy: { "/apiv1": "http://127.0.0.1:5500" },
+  },
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),

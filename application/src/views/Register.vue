@@ -24,7 +24,7 @@ let registrationSchema = Yup.object({
   username: Yup.string().min(5, 'Username must be at least 5 characters.').max(30).required("Username is required."),
   email: Yup.string().min(5, "Email must be at least 5 characters.").email().required("Email is required."),
   confirmEmail: Yup.string().oneOf([Yup.ref('email'), null], 'Emails much match.'),
-  password: Yup.string().min(8).max(20).minLowercase(1, 'Password must have at least one lower case letter. ')
+  password: Yup.string().min(8).max(20).minLowercase(1, 'Password must be at least 8 characters.')
     .minUppercase(1, 'Password must have at least one capital letter.')
     .minNumbers(1, 'Password must contain at least one number..')
     .minSymbols(1, 'Password must contain at least one symbol.').required(),

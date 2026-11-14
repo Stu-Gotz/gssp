@@ -4,11 +4,11 @@ import { baseAPIUrl } from "../utils/utils.js";
 
 export const useUserStore = defineStore("userStore", {
   state: () => ({
-      user: {}
+    user: {}
   }),
   actions: {
     setUserData(userData) {
-      
+
       this.user = userData;
       this.user.isLoggedIn = true;
 
@@ -22,14 +22,14 @@ export const useUserStore = defineStore("userStore", {
       this.user.id = null;
     },
     async saveTeam(team) {
-      if(this.user.profileInfo.teams){
+      if (this.user.profileInfo.teams) {
         this.user.profileInfo.teams.push(team)
       } else {
         this.user.profileInfo.teams = [team]
       }
       try {
         const body = {
-          id: this.user.mongo_id,
+          id: this.user.id,
           username: this.user.username,
           team: team
         }
@@ -41,10 +41,10 @@ export const useUserStore = defineStore("userStore", {
           body: JSON.stringify(body)
         }
         const res = await fetch(`${baseAPIUrl}/saveteam`, headers);
-        if(res.status===200){
+        if (res.status === 200) {
           console.log("Team has been saved.")
         }
-      }catch(err){
+      } catch (err) {
         console.log(err)
       };
     },
@@ -54,10 +54,10 @@ export const useUserStore = defineStore("userStore", {
       return state.user.username
     },
     getUserRole(state) {
-      return  state.user.role
+      return state.user.role
     },
     getUserProfileData(state) {
-      return state.user.profileData
+      return state.user.profileInfo
     },
     getLoginStatus(state) {
       return state.user.isLoggedIn

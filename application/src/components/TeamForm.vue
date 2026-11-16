@@ -10,10 +10,6 @@ const teamStore = useTeamStore();
 const statStore = useStatStore();
 const userStore = useUserStore();
 
-
-
-
-
 // Reactive variables from the form, which will be used to query the database to populate
 // the other half of the page
 const userInput = ref(null);
@@ -22,14 +18,13 @@ const gen = ref("");
 const name = ref("");
 const teamName = ref("");
 
+//team object
 let teamObj = teamStore.team || {
   name: null,
   gen: null,
   tier: null,
   members: null,
 };
-
-
 
 onMounted(() => {
   userInput.value = "";
@@ -62,8 +57,15 @@ async function submitForm() {
       tier: tier.value,
       members: null,
     };
-    teamObj.members = await teamStore.parseInput(userInput.value);
+    try {
+      console.log(userInput.value)
+      teamObj.members = await teamStore.parseInput(userInput.value);
+    } catch (err) {
+      console.log(err)
+    }
+      
 
+    console.log(teamObj.members)
     const tranche = gen.value + tier.value;
 
     await statStore.setCurrent(tranche);
@@ -71,56 +73,6 @@ async function submitForm() {
     await statStore.setOlder(tranche);
 
     teamStore.updateTeam(teamObj);
-
-    /**
-     * 
-     * This is old code, but is kept here because I needed to make it better and abstract it away
-     * i realise having a huge chunk of old code is very untidy, but such is life
-     
-    // console.log(team)
-    // const teamIn = Koffing.parse(userInput.value);
-    // const team = teamIn.teams[0].pokemon;
-
-    // // console.log(team)
-
-    // create tasks variable from team object to easily pass to a promsie.all()
-    // this *should* significantly increase the speed of processing for the 
-    // team submission part of the application which currently takes
-    // bloody ages to finish (like 8 to 10s)
-    // const tasks = team.map(pokemon => pokemon.name.toLowerCase())
-
-    // const pokemon = await P.getPokemonByName(tasks)
-
-    // console.log(pokemon)
-
-
-    // for (var i in team) {
-    // const pokemon = await P.getPokemonByName(team[i].name.toLowerCase()); //fetch(`https://pokeapi.co/api/v2/pokemon/${team[i].name.toLowerCase()}`);
-    // team[i].dex = pokemon.id;
-    // team[i].spriteUrl = pokemon.sprites.front_default;
-    // team[i].type = [];
-    // team[i].itemUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${team[i].item.toLowerCase().replace(' ', '-')}.png`;
-
-    // for (var j in team[i].moves) {
-    //   const moves = await P.getMoveByName(team[i].moves[j].toLowerCase().replace(' ', '-'));//fetch(`https://pokeapi.co/api/v2/move/${team[i].moves[j].toLowerCase().replace(' ', '-')}/`)
-
-    //   team[i].moves[j] = {
-    //     name: team[i].moves[j],
-    //     type: moves.type.name,
-    //     priority: moves.priority
-    //   }
-    // }
-
-    // for (var t in pokemon.types) {
-
-    //   team[i].type.push(pokemon.types[t].type.name);
-    // }
-
-    // };
-
-   
-     * END OLD CODE
-     */
 
   }
 }

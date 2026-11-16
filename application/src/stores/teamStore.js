@@ -24,7 +24,7 @@ export const useTeamStore = defineStore("teamStore", {
     },
   },
   actions: {
-    async parseInput(teamInput) {
+    async parseInput(teamInput) { //big string paste. 
       const that = this; //to pass the `this` variable around
       function lowerCaseKeys(obj) {
         Object.keys(obj).forEach((k) => {
@@ -63,11 +63,14 @@ export const useTeamStore = defineStore("teamStore", {
       const members = parsedTeam.teams[0].pokemon;
 
       const pokemon = members.map(function (el) {
-        const formatted = lowerCaseKeys(el);
+        let formatted = lowerCaseKeys(el);
+        formatted = formatted.replace(" ", "-")
+        console.log(formatted)
         return formatted;
       });
 
       const tasks = pokemon.map((mon) => mon.name);
+      console.log(`tasks object: ${tasks}`)
       const res = await this.P.getPokemonByName(tasks);
 
       pokemon.forEach(async (el) => {

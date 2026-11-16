@@ -1,4 +1,9 @@
-trap 'kill 0' EXIT
+#!/usr/bin/env bash
+cleanup() {
+  trap - INT TERM EXIT   # don't run cleanup twice
+  kill 0                 # stop everything this script started
+}
+trap cleanup INT TERM EXIT
 
 cd application && npm run dev &
 sleep 5 &

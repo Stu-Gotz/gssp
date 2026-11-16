@@ -15,6 +15,7 @@ from django.views.decorators.http import require_GET, require_POST
 from django.db import IntegrityError
 
 from .db import query_sql
+from .utils import to_id
 
 logger = logging.getLogger(__name__)
 
@@ -208,10 +209,11 @@ def save_team(request):
 # Pokedex
 
 
-@csrf_exempt
-@require_POST
+@require_GET
 @json_errors
-def dex(request):
-    body = read_json(request.body)
-    print(body)
-    return JsonResponse({"message": "Something probably oughta go here."})
+def dex(request, name):
+    res = query_sql("SELECT * FROM pokedex WHERE name LIKE %s;", [name])
+    print(res)
+    if not res:
+        return JsonResponse({"message": f"No Pokémon called {name}."}, status=404)
+    return JsonResponse({"data": res[0]})

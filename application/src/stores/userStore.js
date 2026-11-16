@@ -78,7 +78,6 @@ export const useUserStore = defineStore("userStore", {
       return state.user.profileInfo.teams;
     },
     getUserJoinDate(state) {
-      console.log(state)
       return state.user.join_date.split('T')[0];
     }
   },

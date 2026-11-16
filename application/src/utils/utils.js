@@ -52,3 +52,13 @@ export const tiers = [
   "zu",
   "doubleslc"
 ];
+export const SPRITE_BASE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon";
+
+export async function apiGet(path) {
+  const res = await fetch(`${baseAPIUrl}${path}`);
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(body.message || `Request failed (${res.status})`);
+  }
+  return body;
+}

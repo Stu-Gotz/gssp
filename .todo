@@ -1,0 +1,129 @@
+update backend to only use postgres
+remove mongo from everywhere
+create functions to join stats and add api branch(es)
+move pokedex from smog_usage_stats over to here, use as reference data to save using pokeapi
+reduce pokeapi calls to target any data not obtained from pokedex reference
+store pokedex in postgres??
+map trends over time (this will involve expanding postgres to hold more tables, which will in turn increase hosting costs if and when)
+    possible solution is to extract only the rank name tier and date over the last 12 months [this is still an enormous amount of data]
+other data sciencey things, likelihood of teammates and such
+    leans on chaos[teammates] section
+    start out with just listing chaos information like top 10 moves, top 8 teammates, top 5 held items and so on, with %ages
+    will need its own page [Explore?]
+improve ui to be good
+profile page
+bug report
+
+update backend to only use postgres  [DONE]
+   X - views.py rewritten for postgres only (login, register, save_team)
+   X - users + teams tables created, get_user_profile() function in place
+   X - keep all hand-written SQL (tables, functions) in backend/sql/ so it lives in git
+   X - make sure /saveteam reads the user from the token, not the request body
+
+remove mongo from everywhere
+   X - backend: remove pymongo from requirements.txt, MONGO_URI from .env, MONGO_* from settings.py
+   X - frontend: npm uninstall mongoose pg express cors dotenv jsonwebtoken body-parser bcryptjs
+   X - frontend: remove the "start": "node ../API/server.js" script from package.json
+   X - userStore.js: mongo_id -> id everywhere
+   X - userStore.js: saveTeam sends "Authorization: Bearer <token>" header, no id in body
+   X - userStore.js: fix logout (clears id but should clear token too)
+
+security + cleanup (before going live)
+    - set real DJANGO_SECRET_KEY and JWT_SECRET in .env (not the defaults)
+    - set ALLOWED_HOSTS in production
+   X - register: reject passwords over 72 bytes, check username/password are strings
+   X - register: minimum password length, username length + allowed characters
+   X - decide on case-insensitive usernames (unique index on lower(username))
+    - frontend: on any 401, log the user out and send them to the login page (expired token)
+   X - frontend: move API url to one place, use the Vite proxy + relative "/apiv1" path
+    - enforce the 5-team cap on the backend too, not just the frontend
+
+
+create functions to join stats and add api branch(es)
+    - postgres function to compare a pokemon's rank across current / previous / older or beyond
+    - include rank change (up/down/new) so the frontend doesn't have to work it out
+    - possible endpoints:
+        /apiv1/compare/<tier>      top 25 with rank movement
+        /apiv1/pokemon/<name>      one pokemon across all tiers + time periods
+    - add indexes on (tier, rank) for the stats tables if not already there
+
+move pokedex from smog_usage_stats over to here, use as reference data to save using pokeapi
+   X - pokedex table: dex number, name, slug (pokeapi name, e.g. "great-tusk"), types,
+      base stats, abilities, sprite url
+   X - one-off seed script that fills it from pokeapi, then never calls pokeapi for these again
+   X - name normalisation: showdown/koffing gives "great tusk", pokeapi wants "great-tusk"
+        (parseInput currently matches by name, so multi-word pokemon may break - check this)
+    X - handle forms (rotom-wash, urshifu-rapid-strike, etc.) - these trip up name matching
+
+reduce pokeapi calls to target any data not obtained from pokedex reference
+    - parseInput currently calls pokeapi for every pokemon, every move, and every item
+    - moves table: name, type, power, priority, damage class
+    - items table: name, sprite url
+    - new endpoint so the frontend gets pokemon/move/item details from the backend in one request
+    - fall back to pokeapi only for anything missing, and save the result for next time
+    - special function to handle arceus cases
+    - has differnt form links in pokeapi query
+
+X store pokedex in postgres
+
+map trends over time (this will involve expanding postgres to hold more tables, which will in turn increase hosting costs if and when)
+    possible solution is to extract only the rank name tier and date over the last 12 months [this is still an enormous amount of data]
+    - rough sizing: ~50 tiers x ~500 pokemon x 12 months = ~300,000 rows
+    - with narrow columns (pokemon id, tier id, month, rank, usage %) that's tens of MB, not GB
+    - store pokemon/tier as integer ids that reference the pokedex/tiers tables, not repeated text
+    - only keep pokemon above some usage cutoff per tier to shrink it further
+    - index on (tier, pokemon, month) for the "one pokemon over time" chart
+    - a monthly import job to add the newest month (and optionally drop anything older than 12 months)
+    - chart on the frontend (line chart of rank or usage % per month)
+
+other data sciencey things, likelihood of teammates and such
+    leans on chaos[teammates] section
+    start out with just listing chaos information like top 10 moves, top 8 teammates, top 5 held items and so on, with %ages
+    will need its own page [Explore?]
+    - check exactly how smogon calculates each chaos section before turning numbers into %ages
+      (some sections aren't simple counts, so dividing by total usage may not give what you expect)
+    - store per (pokemon, tier, month): top moves, items, abilities, teammates, spreads
+        option A: one JSONB column per section (quick to build)
+        option B: separate narrow tables (better if you want to query across pokemon later)
+    - endpoint: /apiv1/explore/<tier>/<pokemon>
+    - explore page: search box, pokemon card, sections for moves/items/teammates/etc. with % bars
+    - later: "suggest a teammate" for a team being built, based on the teammates data
+
+improve ui to be good
+    - loading states while data is fetched
+    - show error messages to the user (currently many only go to console.log)
+    - login/register forms show the backend's message (e.g. "Username already in use")
+    - mobile layout check
+    - consistent styling across pages
+    - utility functions to properly capitalise names of items, moves, etc
+        -> remove dashes for spaces
+        -> uppercase first letter each word
+        -> off the top of my head, separating into lists via split('-') or similar, capitalising each item, join(' ') at the end
+    - more modern appearance
+    - kinda wanna use SVGs more they're so function
+    
+profile page
+    - show profile info (name, location, etc. from the profile JSONB column)
+    - edit profile (new endpoint, token-protected, PATCH users.profile)
+    - list saved teams, view one, delete one (DELETE endpoint that checks the team belongs to the user)
+    - change password (requires current password)
+    profile page updates
+    - Pokemon table, replace names with small icons clickable to a pokemon/ endpoint
+    - summary column? maybe delete don't want to use any kind of AI bs to summarise a team and there's not much i think that can be gleaned, maybe make it a user-supplied field?
+    - remove team option -> delete in views.py, 
+    !!! CRITICAL index on (tier, rank) 
+    - change how teams are saved to use consistent ids
+
+bug report
+    - simplest: link to a GitHub issues page
+    - or a form that saves to a bug_reports table (user id if logged in, page, description, timestamp)
+    - rate-limit or require login so it doesn't get spammed
+
+testing
+    - django tests for each endpoint (register, login, save_team with/without token)
+    - test the SQL functions directly with known data (the fake users script is a start)
+
+deployment
+    - build vue (npm run build), serve dist/ from django with whitenoise + catch-all route
+    - run with gunicorn, set all env vars on the host
+    - database backups

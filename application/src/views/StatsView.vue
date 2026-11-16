@@ -7,7 +7,7 @@
 
 */
 import { useTeamStore } from '../stores/teamStore';
-import { useStatStore } from '../stores/usageStore';
+import { useStatStore } from '../stores/statStore';
 import { storeToRefs } from 'pinia';
 
 const rootGen = "gen9ou";

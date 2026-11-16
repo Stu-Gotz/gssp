@@ -1,6 +1,42 @@
 import { defineStore } from "pinia";
 import { Koffing } from "koffing";
 import Pokedex from "pokedex-promise-v2";
+import { apiGet, SPRITE_BASE_URL } from "../utils/utils";
+
+const P = new Pokedex();
+
+function lowerCaseKeys(obj) {
+  Object.keys(obj).forEach((k) => {
+    if (typeof obj[k] == "string") {
+      obj[k] = obj[k].toLowerCase();
+    } else if (typeof obj[k] == "object") {
+      obj[k] = lowerCaseKeys(obj[k]);
+    }
+  });
+  return obj;
+}
+
+async function mapMoves(movesArray) {
+  // console.log(movesArray);
+  const moveObject = await P.getMoveByName(
+    movesArray.map((i) => i.replaceAll(" ", "-"))
+  ).then((response) => {
+    let moves = [];
+    for (var i in response) {
+      var move = new Object();
+      move[response[i].name] = {
+        name: response[i].name,
+        type: response[i].type.name,
+        priority: response[i].priority,
+        power: response[i].power,
+        genre: response[i].damage_class.name,
+      };
+      moves.push(move);
+    }
+    return moves;
+  });
+  return moveObject;
+}
 
 export const useTeamStore = defineStore("teamStore", {
   state: () => ({
@@ -10,7 +46,7 @@ export const useTeamStore = defineStore("teamStore", {
       tier: null,
       members: null,
     },
-    P: new Pokedex(),
+
   }),
   getters: {
     getTeam: (state) => {
@@ -26,70 +62,36 @@ export const useTeamStore = defineStore("teamStore", {
   actions: {
     async parseInput(teamInput) { //big string paste. 
       const that = this; //to pass the `this` variable around
-      function lowerCaseKeys(obj) {
-        Object.keys(obj).forEach((k) => {
-          if (typeof obj[k] == "string") {
-            obj[k] = obj[k].toLowerCase();
-          } else if (typeof obj[k] == "object") {
-            obj[k] = lowerCaseKeys(obj[k]);
-          }
-        });
-        return obj;
-      }
-
-      async function mapMoves(movesArray, that) {
-        console.log(movesArray);
-        const moveObject = await that.P.getMoveByName(
-          movesArray.map((i) => i.replace(" ", "-"))
-        ).then((response) => {
-          let moves = [];
-          for (var i in response) {
-            var move = new Object();
-            move[response[i].name] = {
-              name: response[i].name,
-              type: response[i].type.name,
-              priority: response[i].priority,
-              power: response[i].power,
-              genre: response[i].damage_class.name,
-            };
-            moves.push(move);
-          }
-          return moves;
-        });
-        return moveObject;
-      }
 
       const parsedTeam = Koffing.parse(teamInput);
       const members = parsedTeam.teams[0].pokemon;
+      if (!members?.length) throw new Error("Couldn't find a team in that text.");
 
       const pokemon = members.map(function (el) {
-        let formatted = lowerCaseKeys(el);
-        formatted = formatted.replace(" ", "-")
-        console.log(formatted)
+        const formatted = lowerCaseKeys(el);
+        formatted["name"] = formatted["name"].replaceAll(" ", "-");
         return formatted;
       });
 
       const tasks = pokemon.map((mon) => mon.name);
-      console.log(`tasks object: ${tasks}`)
-      const res = await this.P.getPokemonByName(tasks);
-
+      const res = (await Promise.all(tasks.map((n) => apiGet(`/dex/${encodeURIComponent(n)}`)))).map((r) => r.data);
+      console.log(res)
       pokemon.forEach(async (el) => {
         el["moves"] = await mapMoves(el["moves"], that);
-        console.log(el);
       });
-
+      console.log(pokemon)
       //extracting fields of interest from the things I want from the res variable
       for (var i = 0; i < pokemon.length; i++) {
-        const resMatch = res.filter(
+        res.filter(
           (obj) => obj["name"] === pokemon[i].name
         )[0];
-        pokemon[i]["type"] = resMatch["types"].map(
-          (obj) => obj["type"]["name"]
-        );
-        pokemon[i]["dex"] = resMatch["id"];
-        pokemon[i]["spriteUrl"] = resMatch["sprites"]["front_default"];
-        pokemon[i]["itemUrl"] = await this.P.getItemByName(
-          pokemon[i].item.replace(" ", "-")
+        pokemon[i]["type"] = res[i]["types"]
+        pokemon[i]["dex"] = res[i]["num"];
+        pokemon[i]["spriteUrl"] = await P.getPokemonByName(pokemon[i].name).then((res) => {
+          return res["sprites"]["other"]["showdown"]["front_default"]
+        })
+        pokemon[i]["itemUrl"] = await P.getItemByName(
+          pokemon[i].item.replaceAll(" ", "-")
         )
           .then((response) => {
             return response["sprites"]["default"];
@@ -98,9 +100,6 @@ export const useTeamStore = defineStore("teamStore", {
             return null;
           });
       }
-
-      console.log(res);
-      console.log(pokemon);
       return pokemon;
     },
     updateTeam(teamObj) {

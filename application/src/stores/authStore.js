@@ -43,14 +43,12 @@ export const useAuthStore = defineStore("authStore", {
           body: JSON.stringify(registerForm),
         };
         const res = await fetch(`${baseAPIUrl}/register`, headers);
-        console.log(res)
         if (res.status === 201) {
           console.log("Successful registration");
           //login user after registration, saves user clicks
           result = this.loginUser({ username: registerForm.username, password: registerForm.password });
           return result;
         } else {
-          console.log(result);
         }
       } catch (err) {
         console.log(err.message);

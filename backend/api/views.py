@@ -15,6 +15,7 @@ from django.views.decorators.http import require_GET, require_POST
 from django.db import IntegrityError
 
 from .db import query_sql
+from .utils import to_id
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +53,8 @@ def json_errors(view):
 
 def read_json(request):
     """Equivalent of express.json() => req.body."""
+    if request.content_type != "application/json":
+        return JsonResponse({"message": "Invalid content type"}, status=415)
     try:
         data = json.loads(request.body or b"{}")
     except json.JSONDecodeError:
@@ -201,3 +204,16 @@ def save_team(request):
     return JsonResponse(
         {"message": f"Successfully updated {payload['username']}'s teams."}
     )
+
+
+# Pokedex
+
+
+@require_GET
+@json_errors
+def dex(request, name):
+    res = query_sql("SELECT * FROM pokedex WHERE name LIKE %s;", [name])
+    print(res)
+    if not res:
+        return JsonResponse({"message": f"No Pokémon called {name}."}, status=404)
+    return JsonResponse({"data": res[0]})

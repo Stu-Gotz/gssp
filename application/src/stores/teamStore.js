@@ -38,9 +38,9 @@ export const useTeamStore = defineStore("teamStore", {
       }
 
       async function mapMoves(movesArray, that) {
-        console.log(movesArray);
+        // console.log(movesArray);
         const moveObject = await that.P.getMoveByName(
-          movesArray.map((i) => i.replace(" ", "-"))
+          movesArray.map((i) => i.replaceAll(" ", "-"))
         ).then((response) => {
           let moves = [];
           for (var i in response) {
@@ -63,19 +63,16 @@ export const useTeamStore = defineStore("teamStore", {
       const members = parsedTeam.teams[0].pokemon;
 
       const pokemon = members.map(function (el) {
-        let formatted = lowerCaseKeys(el);
-        formatted = formatted.replace(" ", "-")
-        console.log(formatted)
+        const formatted = lowerCaseKeys(el);
+        formatted["name"] = formatted["name"].replaceAll(" ", "-");
         return formatted;
       });
 
       const tasks = pokemon.map((mon) => mon.name);
-      console.log(`tasks object: ${tasks}`)
       const res = await this.P.getPokemonByName(tasks);
 
       pokemon.forEach(async (el) => {
         el["moves"] = await mapMoves(el["moves"], that);
-        console.log(el);
       });
 
       //extracting fields of interest from the things I want from the res variable
@@ -89,7 +86,7 @@ export const useTeamStore = defineStore("teamStore", {
         pokemon[i]["dex"] = resMatch["id"];
         pokemon[i]["spriteUrl"] = resMatch["sprites"]["front_default"];
         pokemon[i]["itemUrl"] = await this.P.getItemByName(
-          pokemon[i].item.replace(" ", "-")
+          pokemon[i].item.replaceAll(" ", "-")
         )
           .then((response) => {
             return response["sprites"]["default"];

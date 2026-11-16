@@ -18,7 +18,6 @@ export const useStatStore = defineStore('statStore', {
 
       try {
         const results = await apiGet(`/${era}/${tier}`);
-        console.log(results);
         this[era] = results.data;
       } catch (err) {
         this.error = err.message

@@ -5,7 +5,6 @@ const userStore = useUserStore();
 
 const savedTeams = userStore.getUserTeams;
 
-console.log(savedTeams)
 // use first_name, last_name, team for saved user data
 
 // const savedTeams = [

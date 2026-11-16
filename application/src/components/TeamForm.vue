@@ -58,7 +58,6 @@ async function submitForm() {
       members: null,
     };
     try {
-      console.log(userInput.value)
       teamObj.members = await teamStore.parseInput(userInput.value);
     } catch (err) {
       console.log(err)
@@ -84,7 +83,6 @@ function clearForm() {
 }
 
 async function saveTeam() {
-  console.log(teamObj);
   await userStore.saveTeam(teamObj);
 }
 </script>

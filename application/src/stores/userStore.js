@@ -9,7 +9,8 @@ export const useUserStore = defineStore("userStore", {
       profileInfo: null,
       role: null,
       token: null,
-      isLoggedIn: false
+      isLoggedIn: false,
+      join_date: null
     }
   }),
   actions: {
@@ -24,6 +25,7 @@ export const useUserStore = defineStore("userStore", {
       this.user.profileInfo = null;
       this.user.id = null;
       this.user.token = null;
+      this.user.join_date = null;
     },
     async saveTeam(team) {
       if (!this.user.isLoggedIn === true) {
@@ -74,6 +76,10 @@ export const useUserStore = defineStore("userStore", {
     },
     getUserTeams(state) {
       return state.user.profileInfo.teams;
+    },
+    getUserJoinDate(state) {
+      console.log(state)
+      return state.user.join_date.split('T')[0];
     }
   },
   persist: true,

@@ -124,6 +124,7 @@ def login(request):
             "role": user_profile["role"],
             "profileInfo": {**user_profile["profile"], "teams": user_profile["teams"]},
             "token": token,
+            "join_date": user_profile["created_at"],
         }
     )
 

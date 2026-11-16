@@ -51,7 +51,7 @@ userStore.$subscribe((mutation, state) => {return}, { detached: true })
                 <RouterLink class="nav-link active" to="/logout">Logout</RouterLink>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item nav-link" href="http://127.0.0.1:5500/index.html">API</a></li>
+              <li><RouterLink class="nav-link active" to="/stats">API</RouterLink></li>
               <li class="nav-item">
                 <a class="nav-link disabled">Report a Bug</a>
               </li>

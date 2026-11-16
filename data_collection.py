@@ -1,6 +1,4 @@
-from smog_usage_stats.usageStats import BaseStatsSearch, MonotypeStatsSearch
-from smog_usage_stats.chaosStats import BaseChaosSearch, MonotypeChaosSearch
-from smog_usage_stats.search import _Search as Search
+from smog_usage_stats import api, metagame, transformer
 
 import re
 import os
@@ -42,39 +40,47 @@ class Updater:
         self.isMonotype = isMonotype
 
     @staticmethod
-    def _set_query_object(param_dict: dict) -> Search:
+    def _set_query_object(param_dict: dict) -> list[transformer.Usage]:
         """
         Basically a backend router that returns a Search.<subclass> object
         """
         match param_dict["branch"]:
             case "BaseStats":
-                new_query = BaseStatsSearch(
-                    year=param_dict["year"],
-                    month=param_dict["month"],
-                    gen=param_dict["gen"],
-                    tier=param_dict["branch_param"],
+                new_query = api.usage_stats(
+                    metagame.Metagame(
+                        year=param_dict["year"],
+                        month=param_dict["month"],
+                        gen=param_dict["gen"],
+                        tier=param_dict["branch_param"],
+                    )
                 )
                 return new_query
             case "MonoStats":
-                new_query = MonotypeStatsSearch(
-                    year=param_dict["year"],
-                    month=param_dict["month"],
-                    gen=param_dict["gen"],
-                    typing=param_dict["branch_param"],
+                new_query = api.usage_stats(
+                    metagame.Metagame(
+                        year=param_dict["year"],
+                        month=param_dict["month"],
+                        gen=param_dict["gen"],
+                        typing=param_dict["branch_param"],
+                    )
                 )
             case "BaseChaos":
-                new_query = BaseChaosSearch(
-                    year=param_dict["year"],
-                    month=param_dict["month"],
-                    gen=param_dict["gen"],
-                    tier=param_dict["branch_param"],
+                new_query = api.extended_stats(
+                    metagame.Metagame(
+                        year=param_dict["year"],
+                        month=param_dict["month"],
+                        gen=param_dict["gen"],
+                        tier=param_dict["branch_param"],
+                    )
                 )
             case "MonoChaos":
-                new_query = MonotypeChaosSearch(
-                    year=param_dict["year"],
-                    month=param_dict["month"],
-                    gen=param_dict["gen"],
-                    typing=param_dict["branch_param"],
+                new_query = api.extended_stats(
+                    metagame.Metagame(
+                        year=param_dict["year"],
+                        month=param_dict["month"],
+                        gen=param_dict["gen"],
+                        typing=param_dict["branch_param"],
+                    )
                 )
         return new_query
 
@@ -151,6 +157,9 @@ class Updater:
 
             """
             match_pattern = r"gen[0-9]"
+            branch = "BaseStats"
+            if isMonotype:
+                branch = "MonoStats"
             for link in stats_links:
                 link = link.removesuffix(
                     "-1500.txt"
@@ -166,7 +175,7 @@ class Updater:
                         "month": date_dict[table].strftime("%m"),
                         "gen": gen,
                         "branch_param": tier,
-                        "branch": "BaseStats",
+                        "branch": branch,
                         "isMonotype": isMonotype,
                     }
                 )
@@ -314,11 +323,11 @@ if __name__ == "__main__":
     ##### THIS IS ALL JUST TESTING AND FOR TESTING NEW FEATURES STUFF IF IT WORKS
 
     sqli = SQLInterface()
-    sqli.update_tables()
+    # sqli.update_tables()
     # gotta do the dirlist and pass the current, previous, tma dirs and tables
-    tables = ["current", "previous", "tma"]
-    [sqli.load_data_to_table(target_table=t) for t in tables]
-    sqli.close_connection()
+    # tables = ["current", "previous", "tma"]
+    # [sqli.load_data_to_table(target_table=t) for t in tables]
+    # sqli.close_connection()
 
     # def get_tiers():  # date_obj: datetime) -> tuple[str]:
     #     """Internal function to get the available tiers to query. Faster than
@@ -345,11 +354,193 @@ if __name__ == "__main__":
 
     # get_tiers()
 
-# if __name__ == "__main__":
-# gen_pattern = r"(gen[0-9])"
-# link = "https://www.smogon.com/stats/2024-07/gen71v1-1500.txt"
-# # tier = re.split(r"gen[0-9]", link)[-1]
-# gen = re.search(gen_pattern, link).group()
-# gen = re.sub(r'[a-z]', '', gen)
-# # gen = gen.replace(r'[a-z]', '')
-# print(gen)
+    # if __name__ == "__main__":
+    # gen_pattern = r"(gen[0-9])"
+    # link = "https://www.smogon.com/stats/2024-07/gen71v1-1500.txt"
+    # # tier = re.split(r"gen[0-9]", link)[-1]
+    # gen = re.search(gen_pattern, link).group()
+    # gen = re.sub(r'[a-z]', '', gen)
+    # # gen = gen.replace(r'[a-z]', '')
+    # print(gen)
+    # import json
+    # import os
+    # import re
+
+    # import psycopg2
+
+    # CREATE_TABLE_SQL = """
+    # CREATE TABLE IF NOT EXISTS pokedex (
+    # id           TEXT PRIMARY KEY,         -- showdown id, e.g. 'greattusk'
+    # num          INTEGER NOT NULL,         -- national dex number (shared by formes)
+    # name         TEXT NOT NULL UNIQUE,     -- 'great tusk'
+    # base_species TEXT,
+    # forme        TEXT,
+    # types        TEXT[] NOT NULL,
+    # hp INTEGER, atk INTEGER, def INTEGER, spa INTEGER, spd INTEGER, spe INTEGER,
+    # abilities    JSONB,
+    # heightm      REAL,
+    # weightkg     REAL,
+    # prevo        TEXT,
+    # evos         TEXT[],
+    # egg_groups   TEXT[],
+    # other_formes TEXT[],
+    # extra        JSONB NOT NULL DEFAULT '{}'
+    # );
+    # CREATE INDEX IF NOT EXISTS pokedex_num_idx ON pokedex (num);
+    # """
+
+    # # Keys that get their own column; everything else goes into "extra".
+    # CORE_COLUMNS = {
+    #     "num",
+    #     "name",
+    #     "base_species",
+    #     "forme",
+    #     "types",
+    #     "abilities",
+    #     "heightm",
+    #     "weightkg",
+    #     "prevo",
+    #     "evos",
+    #     "egg_groups",
+    #     "other_formes",
+    # }
+    # STAT_COLUMNS = ["hp", "atk", "def", "spa", "spd", "spe"]
+    # ALL_COLUMNS = ["id", *sorted(CORE_COLUMNS), *STAT_COLUMNS, "extra"]
+
+    # def _snake(key):
+    #     """baseStats -> base_stats, eggGroups -> egg_groups."""
+    #     return re.sub(r"(?<=[a-z0-9])([A-Z])", r"_\1", key).lower()
+
+    # def _lower(value):
+    #     """Lower-case (and trim) every string, including inside nested dicts and lists."""
+    #     if isinstance(value, str):
+    #         return value.strip().lower()
+    #     if isinstance(value, dict):
+    #         return {_lower(k): _lower(v) for k, v in value.items()}
+    #     if isinstance(value, list):
+    #         return [_lower(v) for v in value]
+    #     return value
+
+    # def insert_pokedex(cursor, payload):
+    #     """Upsert every real Pokémon in payload["data"]; returns the row count."""
+    #     rows = []
+    #     for showdown_id, entry in payload["data"].items():
+    #         entry = {_snake(k): _lower(v) for k, v in entry.items()}
+    #         if entry.get("num", 0) <= 0:  # CAP, Pokestar, MissingNo, cosmetic formes
+    #             continue
+
+    #         stats = entry.pop("base_stats", {})
+    #         row = {"id": showdown_id.lower(), "extra": {}}
+    #         for key, value in entry.items():
+    #             if key in CORE_COLUMNS:
+    #                 row[key] = value
+    #             else:
+    #                 row["extra"][key] = value
+    #         for stat in STAT_COLUMNS:
+    #             row[stat] = stats.get(stat)
+
+    #         rows.append(
+    #             [
+    #                 json.dumps(row.get(c))
+    #                 if isinstance(row.get(c), dict)
+    #                 else row.get(c)
+    #                 for c in ALL_COLUMNS
+    #             ]
+    #         )
+
+    #     column_sql = ", ".join(f'"{c}"' for c in ALL_COLUMNS)
+    #     placeholders = ", ".join(["%s"] * len(ALL_COLUMNS))
+    #     updates = ", ".join(f'"{c}" = EXCLUDED."{c}"' for c in ALL_COLUMNS if c != "id")
+    #     cursor.executemany(
+    #         f"INSERT INTO pokedex ({column_sql}) VALUES ({placeholders}) "
+    #         f"ON CONFLICT (id) DO UPDATE SET {updates}",
+    #         rows,
+    #     )
+    #     return len(rows)
+
+    # with open(os.path.join(os.getcwd(), "backend/assets/smogdex.json")) as f:
+    #     payload = json.load(f)
+
+    # connection = psycopg2.connect(
+    #     database=os.environ.get("LOCAL_DATABASE"),
+    #     user=os.environ.get("LOCAL_USER"),
+    #     password=os.environ.get("LOCAL_PASS"),
+    #     host=os.environ.get("LOCAL_HOST"),
+    #     port=os.environ.get("LOCAL_PORT"),
+    # )
+    # try:
+    #     with connection:  # commits on success, rolls back on error
+    #         with connection.cursor() as cur:
+    #             cur.execute(CREATE_TABLE_SQL)
+    #             connection.commit()
+    #             count = insert_pokedex(cur, payload)
+    #     print(f"Upserted {count} Pokémon")
+    # finally:
+    #     connection.close()
+
+    # import json
+    # import os
+
+    # import psycopg2
+    # import requests
+
+    # from backend.api.utils import to_id  # wherever you put to_id
+
+    # OVERRIDES_PATH = "backend/assets/name_map.json"
+
+    # def load_pokeapi_by_id():
+    #     resp = requests.get(
+    #         "https://pokeapi.co/api/v2/pokemon", params={"limit": 100000}, timeout=30
+    #     )
+    #     resp.raise_for_status()
+    #     names = [p["name"] for p in resp.json()["results"]]
+    #     return {to_id(name): name for name in names}, set(names)
+
+    # def main():
+    #     with open(OVERRIDES_PATH) as f:
+    #         overrides = json.load(f)
+    #     manual = overrides["pokemon"]
+    #     form_only = set(overrides["form_only"])
+
+    #     pokeapi_by_id, pokeapi_names = load_pokeapi_by_id()
+
+    #     # Catch typos in the overrides file before touching the database.
+    #     bad = {k: v for k, v in manual.items() if v not in pokeapi_names}
+    #     if bad:
+    #         raise SystemExit(f"Overrides that don't exist in PokeAPI: {bad}")
+
+    #     connection = psycopg2.connect(
+    #         database=os.environ.get("LOCAL_DATABASE"),
+    #         user=os.environ.get("LOCAL_USER"),
+    #         password=os.environ.get("LOCAL_PASS"),
+    #         host=os.environ.get("LOCAL_HOST"),
+    #         port=os.environ.get("LOCAL_PORT"),
+    #     )
+    #     try:
+    #         with connection:
+    #             with connection.cursor() as cur:
+    #                 cur.execute(
+    #                     "ALTER TABLE pokedex ADD COLUMN IF NOT EXISTS pokeapi_slug TEXT"
+    #                 )
+    #                 cur.execute("SELECT id FROM pokedex")
+    #                 ids = [row[0] for row in cur.fetchall()]
+
+    #                 updates, unmatched = [], []
+    #                 for showdown_id in ids:
+    #                     slug = manual.get(showdown_id) or pokeapi_by_id.get(showdown_id)
+    #                     if slug:
+    #                         updates.append((slug, showdown_id))
+    #                     elif showdown_id not in form_only:
+    #                         unmatched.append(showdown_id)
+
+    #                 cur.executemany(
+    #                     "UPDATE pokedex SET pokeapi_slug = %s WHERE id = %s", updates
+    #                 )
+
+    #         print(f"Set pokeapi_slug on {len(updates)} of {len(ids)} rows")
+    #         if unmatched:
+    #             print(f"Unmatched ({len(unmatched)}): {', '.join(sorted(unmatched))}")
+    #     finally:
+    #         connection.close()
+
+    # main()

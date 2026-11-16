@@ -40,7 +40,7 @@ console.log(savedTeams)
           <div class="card-body">
             <h5 class="card-title">{{ userStore.getUsername }}</h5>
             <!-- <h6 class="card-subtitle">Location {{ userStore.getLocation }}</h6> need to make this first -->
-            <h6 class="card-subtitle">Join Date: Today</h6>
+            <h6 class="card-subtitle">Join Date: {{userStore.getUserJoinDate}}</h6>
             <!-- this will obviously have to change and annoyingly i will have to redo the users table because i forgot to include join dates-->
 
           </div>

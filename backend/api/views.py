@@ -52,6 +52,8 @@ def json_errors(view):
 
 def read_json(request):
     """Equivalent of express.json() => req.body."""
+    if request.content_type != "application/json":
+        return JsonResponse({"message": "Invalid content type"}, status=415)
     try:
         data = json.loads(request.body or b"{}")
     except json.JSONDecodeError:
@@ -201,3 +203,15 @@ def save_team(request):
     return JsonResponse(
         {"message": f"Successfully updated {payload['username']}'s teams."}
     )
+
+
+# Pokedex
+
+
+@csrf_exempt
+@require_POST
+@json_errors
+def dex(request):
+    body = read_json(request.body)
+    print(body)
+    return JsonResponse({"message": "Something probably oughta go here."})

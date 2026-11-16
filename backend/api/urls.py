@@ -9,4 +9,5 @@ urlpatterns = [
     path("login", views.login),
     path("register", views.register),
     path("saveteam", views.save_team),
+    path("pokedex/<str:name>", views.dex),
 ]

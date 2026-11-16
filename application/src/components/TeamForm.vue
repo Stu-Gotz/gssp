@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useTeamStore } from '../stores/teamStore';
-import { useStatStore } from '../stores/usageStore';
+import { useStatStore } from '../stores/statStore.js';
 import { useUserStore } from '../stores/userStore';
 import { gens, tiers } from '../utils/utils.js';
 
@@ -63,14 +63,14 @@ async function submitForm() {
     } catch (err) {
       console.log(err)
     }
-      
-
-    console.log(teamObj.members)
+   
     const tranche = gen.value + tier.value;
+    const ERAS = ["current", "previous", "older"]
 
-    await statStore.setCurrent(tranche);
-    await statStore.setPrevious(tranche);
-    await statStore.setOlder(tranche);
+    await ERAS.map((e) => statStore.setTier(e, tranche))
+    // await statStore.setTier("current", tranche);
+    // await statStore.setTier("previous", tranche);
+    // await statStore.setTier("older", tranche);
 
     teamStore.updateTeam(teamObj);
 

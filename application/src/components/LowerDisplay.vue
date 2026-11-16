@@ -1,10 +1,10 @@
 <script setup>
-import { useStatStore } from '../stores/usageStore';
+import { useStatStore } from '../stores/statStore';
 import { storeToRefs } from 'pinia';
 
 const statStore = useStatStore();
 
-const { current, previous, tma } = storeToRefs(statStore);
+const { current, previous, older } = storeToRefs(statStore);
 
 function rankChange(oldRank, newRank) {
 
@@ -37,7 +37,7 @@ function rankChange(oldRank, newRank) {
     <div class="h-100 w-100 overflow-auto">
       <p class="position-absolute text-center m-0 p-0 border-bottom">Older Ranking</p>
       <ul class="d-flex flex-column flex-1 align-items-end">
-        <li class="text-align-left pe-2" v-for="old in tma">{{ old.pokemon }} -- {{ old.rank }}</li>
+        <li class="text-align-left pe-2" v-for="old in older">{{ old.pokemon }} -- {{ old.rank }}</li>
       </ul>
     </div>
   </div>

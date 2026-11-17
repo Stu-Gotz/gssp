@@ -15,7 +15,6 @@ from django.views.decorators.http import require_GET, require_POST
 from django.db import IntegrityError
 
 from .db import query_sql
-from .utils import to_id
 
 logger = logging.getLogger(__name__)
 
@@ -180,13 +179,13 @@ def save_team(request):
             payload = jwt.decode(
                 auth_chk.removeprefix("Bearer ").strip(),
                 settings.JWT_SECRET,
-                algoriths=["HS256"],
+                algorithms=["HS256"],
             )
     except jwt.InvalidTokenError as e:
         return JsonResponse({"message": f"Invalid token {str(e)}"}, status=401)
 
     body = read_json(request)
-    user_id = payload.get["sub"]
+    user_id = payload.get("sub")
     team = body.get("team")
     tier = team["gen"] + team["tier"]
 
@@ -217,3 +216,10 @@ def dex(request, name):
     if not res:
         return JsonResponse({"message": f"No Pokémon called {name}."}, status=404)
     return JsonResponse({"data": res[0]})
+
+
+@require_GET
+@json_errors
+def compare(request, tier):
+    rows = query_sql("SELECT * FROM compare_ranks(%s)", [tier])
+    return JsonResponse({"data": rows})

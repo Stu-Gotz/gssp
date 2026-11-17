@@ -2,6 +2,30 @@
 
 -- Run data_collection.py to get last 3 months of data
 
+-- compare stats, run in backend because it makes more sense to do so
+CREATE OR REPLACE FUNCTION compare_ranks(p_tier TEXT)
+RETURNS TABLE (
+  pokemon       TEXT,
+  current_rank  INTEGER,
+  previous_rank INTEGER,
+  older_rank    INTEGER
+)
+LANGUAGE sql
+STABLE
+AS $$
+  WITH names AS (
+    SELECT c.pokemon FROM current c WHERE c.tier = p_tier AND c.rank <= 25
+    UNION
+    SELECT p.pokemon FROM previous p WHERE p.tier = p_tier AND p.rank <= 25
+  )
+  SELECT n.pokemon, c.rank, p.rank, o.rank
+  FROM names n
+  LEFT JOIN current  c ON c.pokemon = n.pokemon AND c.tier = p_tier
+  LEFT JOIN previous p ON p.pokemon = n.pokemon AND p.tier = p_tier
+  LEFT JOIN tma      o ON o.pokemon = n.pokemon AND o.tier = p_tier
+  ORDER BY c.rank NULLS LAST, p.rank;
+$$;
+
 -- SAMPLE USERS and SAMPLE TEAMS
 BEGIN;
 

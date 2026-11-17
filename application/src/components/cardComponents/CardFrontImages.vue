@@ -7,7 +7,7 @@ defineProps(['sprite', 'helditem'])
 <template>
   <div class="d-flex justify-content-center  align-items-center card-images w-100">
     <!-- Pokemon sprite -->
-    <img :src="sprite" alt="" srcset="" class="h-100">
+    <img :src="sprite" alt="" srcset="" class="h-100 sprite">
     <!-- Item -->
     <img :src="helditem" alt="" class="object-fit-contain align-self-end justify-self-end helditem">
   </div>
@@ -24,5 +24,12 @@ defineProps(['sprite', 'helditem'])
 .helditem {
   margin-left: -2rem;
   margin-bottom: 10px;
+  max-height: 30px;
+  max-width: 30px;
+}
+
+.sprite {
+  max-height: 75px;
+  max-width: 115px;
 }
 </style>

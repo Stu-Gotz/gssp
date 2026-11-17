@@ -211,7 +211,7 @@ def save_team(request):
 @require_GET
 @json_errors
 def dex(request, name):
-    res = query_sql("SELECT * FROM pokedex WHERE name LIKE %s;", [name])
+    res = query_sql("SELECT * FROM pokedex WHERE pokeapi_slug LIKE %s;", [name])
     print(res)
     if not res:
         return JsonResponse({"message": f"No Pokémon called {name}."}, status=404)

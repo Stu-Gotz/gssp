@@ -62,3 +62,17 @@ export async function apiGet(path) {
   }
   return body;
 }
+
+export function titleCase(word, delimeter = " ") {
+  let words = word.split(delimeter)
+
+  if (words.length > 1) {
+    return words.map((w) => titleCase(w)).join(delimeter)
+  } else {
+    return word[0].toUpperCase() + word.slice(1)
+  }
+}
+
+export function normaliseNames(name, toDelimeter, fromDelimeter) {
+  return name.replaceAll(fromDelimeter, toDelimeter)
+}

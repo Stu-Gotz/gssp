@@ -1,3 +1,10 @@
+<!-- TO DO HERE
+  - Change table to actually be a table
+  - Filterable (maybe) definitely allow ascending/descending order for columns
+  - use either SVG/Emoji or some kind of fancy text character and colour if use text based on up down or neutral movement
+  - 
+-->
+
 <script setup>
 import { useStatStore } from '../stores/statStore';
 import { storeToRefs } from 'pinia';
@@ -20,6 +27,7 @@ function rankChange(oldRank, newRank) {
 </script>
 
 <template>
+  <h4>This is in development still. For this reason it only displays the top 25 of each tier. This may change, but unlikely.</h4>
   <div class="d-flex h-50 w-100 justify-content-between align-items-start flex-1">
     <div class="h-100 w-100 overflow-auto">
       <p class="position-absolute text-center m-0 p-0 border-bottom">Current Ranking</p>

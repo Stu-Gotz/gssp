@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { Koffing } from "koffing";
 import Pokedex from "pokedex-promise-v2";
-import { apiGet, SPRITE_BASE_URL } from "../utils/utils";
+import { apiGet, normaliseNames } from "../utils/utils";
 
 const P = new Pokedex();
 
@@ -19,12 +19,12 @@ function lowerCaseKeys(obj) {
 async function mapMoves(movesArray) {
   // console.log(movesArray);
   const moveObject = await P.getMoveByName(
-    movesArray.map((i) => i.replaceAll(" ", "-"))
+    movesArray.map((i) => normaliseNames(i, "-", " "))
   ).then((response) => {
     let moves = [];
     for (var i in response) {
       var move = new Object();
-      move[response[i].name] = {
+      move = {
         name: response[i].name,
         type: response[i].type.name,
         priority: response[i].priority,
@@ -69,10 +69,11 @@ export const useTeamStore = defineStore("teamStore", {
 
       const pokemon = members.map(function (el) {
         const formatted = lowerCaseKeys(el);
-        formatted["name"] = formatted["name"].replaceAll(" ", "-");
+        formatted["name"] = normaliseNames(formatted["name"], "-", " ")
+        console.log(formatted["name"])
         return formatted;
       });
-
+      console.log(pokemon)
       const tasks = pokemon.map((mon) => mon.name);
       const res = (await Promise.all(tasks.map((n) => apiGet(`/dex/${encodeURIComponent(n)}`)))).map((r) => r.data);
       console.log(res)
@@ -88,10 +89,10 @@ export const useTeamStore = defineStore("teamStore", {
         pokemon[i]["type"] = res[i]["types"]
         pokemon[i]["dex"] = res[i]["num"];
         pokemon[i]["spriteUrl"] = await P.getPokemonByName(pokemon[i].name).then((res) => {
-          return res["sprites"]["other"]["showdown"]["front_default"]
+          return res["sprites"]["front_default"]
         })
         pokemon[i]["itemUrl"] = await P.getItemByName(
-          pokemon[i].item.replaceAll(" ", "-")
+          normaliseNames(pokemon[i].item, "-", " ")
         )
           .then((response) => {
             return response["sprites"]["default"];

@@ -32,8 +32,8 @@ export const useStatStore = defineStore('statStore', {
       getPrevious(state) {
         return state.previous;
       },
-      getTma(state) {
-        return state.tma;
+      getOlder(state) {
+        return state.older;
       }
     },
     persist: true,

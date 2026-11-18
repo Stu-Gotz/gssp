@@ -5,7 +5,7 @@ import CardEvs from '../cardComponents/CardEvs.vue';
 import CardMoves from '../cardComponents/CardMoves.vue';
 import { titleCase, normaliseNames } from '../../utils/utils.js';
 
-defineProps(['pokemon'])
+defineProps(['pokemon']);
 
 function typeBackground(type) {
   const backgroundImageUrls = [];

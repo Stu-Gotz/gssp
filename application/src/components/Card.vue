@@ -3,18 +3,30 @@ import CardFront from './Cards/CardFront.vue';
 import CardBack from './Cards/CardBack.vue';
 import { ref, computed } from 'vue';
 
-defineProps(['pokemon']);
-const isFlipped = ref(false);
-const cardSide = computed(() => {
+const cardFace = computed(() => {
   if (!isFlipped.value) return CardFront;
   else return CardBack;
 });
+const isFlipped = ref(false);
 
 function toggleFlip() {
   isFlipped.value = !isFlipped.value;
 };
+
+defineProps(['pokemon']);
 </script>
 
 <template>
-  <component :is="cardSide" v-for="mon in pokemon" :pokemon="mon" @click="toggleFlip()" />
+  <div class="wrapper" @click="toggleFlip()">
+    <component :is="cardFace" :pokemon="pokemon" />
+  </div>
 </template>
+
+<style lang="scss">
+.wrapper {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+}
+</style>

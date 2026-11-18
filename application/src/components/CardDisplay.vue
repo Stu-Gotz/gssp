@@ -1,10 +1,14 @@
 <script setup>
-import CardFront from './Cards/CardFront.vue';
-import CardBack from './Cards/CardBack.vue';
+import { computed } from 'vue';
+import { storeToRefs } from 'pinia';
 import Card from './Card.vue';
 import WelcomeCards from './Cards/WelcomeCards.vue';
 import { useTeamStore } from '../stores/teamStore';
 const teamStore = useTeamStore();
+const { team: teamRef } = storeToRefs(teamStore);
+
+const team = computed(() => teamRef.value.members ?? [])
+
 </script>
 
 <template>
@@ -14,9 +18,12 @@ const teamStore = useTeamStore();
     <div class="cards">
       <!-- This begins each card element. A goal in the project is to turn this into smaller components -->
       <!-- This is technically bad practice, I will optimize later if time is available. -->
-      <WelcomeCards v-if="!teamStore.team.members" />
+      <WelcomeCards v-if="!team" />
       <!-- <CardFront v-else v-for="i in teamStore.team" :pokemon="i"/> -->
-      <Card v-else :pokemon="teamStore.team.members" />
+      <template v-else>
+        <Card v-for="(mon, i) in team" :key="`${mon.name}-${i}`" :pokemon="mon" />
+      </template>
+
     </div>
   </div>
   <!-- End Top Half Page -->

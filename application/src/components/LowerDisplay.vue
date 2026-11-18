@@ -13,6 +13,16 @@ const statStore = useStatStore();
 
 const { current, previous, older } = storeToRefs(statStore);
 
+const tableColumns = [
+  { key: "sprite", label: "" },
+  { key: "pokemon", label: "Name" },
+  { key: "rank", label: "Current Rank" },
+  { key: "raw", label: "Usage Rate (Raw)" },
+  { key: "raw_pct", label: "Usage Rate (Percent)" },
+  { key: "current", label: "Previous Rank" },
+  { key: "change", label: "Change" }
+];
+
 function rankChange(oldRank, newRank) {
 
   if (oldRank > newRank) {
@@ -27,8 +37,40 @@ function rankChange(oldRank, newRank) {
 </script>
 
 <template>
-  <h4>This is in development still. For this reason it only displays the top 25 of each tier. This may change, but unlikely.</h4>
-  <div class="d-flex h-50 w-100 justify-content-between align-items-start flex-1">
+  <!-- This needs to be transformed into tables 
+   Wants:
+    Text filter/search
+    asc/desc on non-name columns
+    show change in rank and highlight red or green on neg/pos
+    current rank, sprite, name, total use, % use, previous don't show older but use it for rank range in previous in parenthesis
+    names are hyperlinks to dex page (not started yet)-->
+  <h4>This is in development still. For this reason it only displays the top 25 of each tier. This may change, but
+    unlikely.</h4>
+  <div class="w-100">
+    <!-- name search -->
+    <input v-model="filter" type="search" class="form-control mb-2" placeholder="Filter by name">
+
+    <!-- table container -->
+    <div class="table-responsive stats-table">
+      <!-- BEGIN TABLE -->
+      <table class="table table-sm table-hover align-middle mb-0">
+        <thead class="table-light sticky-top">
+          <tr>
+            <th>
+              <!-- for item in column names array -->
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="">
+            <!-- for row in data array make rows -->
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- OLD KEEP AS FALLBACK -->
+  <!-- <div class="d-flex h-50 w-100 justify-content-between align-items-start flex-1">
     <div class="h-100 w-100 overflow-auto">
       <p class="position-absolute text-center m-0 p-0 border-bottom">Current Ranking</p>
       <ul class="d-flex flex-column flex-1 align-items-end">
@@ -48,12 +90,17 @@ function rankChange(oldRank, newRank) {
         <li class="text-align-left pe-2" v-for="old in older">{{ old.pokemon }} -- {{ old.rank }}</li>
       </ul>
     </div>
-  </div>
+  </div> -->
 </template>
 
 <style scoped>
 ul>* {
   font-size: .8rem;
   text-transform: capitalize;
+}
+
+.stats-table {
+  max-height: 50%;
+  overflow: auto;
 }
 </style>

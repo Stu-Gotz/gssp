@@ -10,17 +10,27 @@ import { computed, watch, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useStatStore } from "../stores/statStore";
 import { useTeamStore } from "../stores/teamStore";
-
+import { normaliseNames, titleCase } from "../utils/utils";
 const statStore = useStatStore();
 const teamStore = useTeamStore();
 const { trends, error, loading } = storeToRefs(statStore);
 
-const filter = ref(null);
+console.log(trends)
+const filter = ref("");
+const sortKey = ref("current");
+const sortAsc = ref(1);
+
 
 const genString = computed(() =>
   teamStore.team.gen && teamStore.team.tier ? teamStore.team.gen + teamStore.team.tier : null
 );
 
+const filteredRows = computed(() => {
+  const term = filter.value.trim().toLowerCase();
+  if (!term) return trends.value ?? [];
+  //found this on jsperf, should be a faster way to string match but functionally identical to str.includes()
+  return (trends.value ?? []).filter((row) => row.pokemon.toLowerCase().indexOf(term) !== -1);
+})
 watch(
   genString,
   (tier) => {
@@ -56,7 +66,16 @@ function rankChange(oldRank, newRank) {
 }
 
 function sort() { return }
-function sortBy() { return }
+
+function sortBy(key) {
+  if (sortKey.value === key) {
+    sortAsc.value = !sortAsc.value;
+    console.log(`sorting ascending? ${sortAsc.value}`)
+  } else {
+    sortKey.value = key;
+    sortAsc.value = key !== "change"; // ranks: 1 first; change: biggest climbers first
+  }
+}
 </script>
 
 <template>
@@ -80,20 +99,21 @@ function sortBy() { return }
       <table class="table table-sm table-hover align-middle mb-0">
         <thead class="table-light sticky-top">
           <tr>
-            <th v-for="col in tableColumns" :key="col.key" role="button">
+            <th v-for="col in tableColumns" :key="col.key" role="button" @click="sortBy(col.key)"
+              :aria-sort="sortKey === col.key ? (sortAsc ? 'ascending' : 'descending') : 'none'">
               {{ col.label }}
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="row in trends" :key="row.pokemon">
-            <td> sprite </td>
-            <td> {{ row.pokemon }} </td>
+          <tr v-for="row in filteredRows" :key="row.pokemon">
+            <td><a href="/#"> sprite </a></td>
+            <td><a href="/#"> {{ normaliseNames(titleCase(normaliseNames(row.pokemon, ' ', '-')), '-', ' ') }} </a></td>
             <td> {{ row.current_rank }} </td>
-            <td> {{ row.raw_usage.toLocaleString() }} </td>
-            <td> {{ row.usage_pct.toFixed(2) }} </td>
-            <td> {{ row.previous_rank }} </td>
-            <td> {{ row.previous_rank - row.current_rank }}</td>
+            <td>{{ row.raw_usage.toLocaleString() }} </td>
+            <td>{{ row.usage_pct.toFixed(2) }} </td>
+            <td>{{ row.previous_rank }} </td>
+            <td>{{ row.previous_rank - row.current_rank }} </td>
           </tr>
         </tbody>
       </table>

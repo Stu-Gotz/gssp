@@ -9,7 +9,6 @@ import Navigation from './components/Navigation.vue';
 </template>
 
 <style lang="scss">
-
 @media (min-width: 1024px) {
   header {
     display: flex;
@@ -31,6 +30,7 @@ import Navigation from './components/Navigation.vue';
 body {
   background-color: #9e82c2;
 }
+
 ul,
 li {
   list-style: none;
@@ -38,57 +38,79 @@ li {
   padding: 0;
 }
 
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
 .bug {
   color: #8fa832;
 }
+
 .dark {
   color: #444;
 }
+
 .dragon {
   color: #3238a8;
 }
+
 .electric {
   color: #a8ab00;
 }
+
 .fairy {
   color: #f9a3ff;
 }
+
 .fighting {
   color: #913d00;
 }
+
 .fire {
   color: #f06500;
 }
+
 .flying {
   color: #babcff;
 }
+
 .ghost {
   color: #500091;
 }
+
 .grass {
   color: #009113;
 }
+
 .ground {
   color: #694b30;
 }
+
 .ice {
   color: #9cf7ff;
 }
+
 .normal {
   color: #bfbfbf;
 }
+
 .poison {
   color: #bc00f5;
 }
+
 .psychic {
   color: #a144bd;
 }
+
 .rock {
   color: #5e4e46;
 }
+
 .steel {
   color: #969696;
 }
+
 .water {
   color: #3030ff;
 }

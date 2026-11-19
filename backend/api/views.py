@@ -212,7 +212,6 @@ def save_team(request):
 @json_errors
 def dex(request, name):
     res = query_sql("SELECT * FROM pokedex WHERE pokeapi_slug LIKE %s;", [name])
-    print(res)
     if not res:
         return JsonResponse({"message": f"No Pokémon called {name}."}, status=404)
     return JsonResponse({"data": res[0]})
@@ -222,4 +221,5 @@ def dex(request, name):
 @json_errors
 def compare(request, tier):
     rows = query_sql("SELECT * FROM compare_ranks(%s)", [tier])
+    print(rows)
     return JsonResponse({"data": rows})

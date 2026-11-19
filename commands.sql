@@ -8,7 +8,9 @@ RETURNS TABLE (
   pokemon       TEXT,
   current_rank  INTEGER,
   previous_rank INTEGER,
-  older_rank    INTEGER
+  older_rank    INTEGER,
+  raw_usage     INTEGER,
+  usage_pct     FLOAT
 )
 LANGUAGE sql
 STABLE

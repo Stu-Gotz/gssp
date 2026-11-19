@@ -13,7 +13,7 @@ const team = computed(() => teamRef.value.members ?? [])
 
 <template>
   <!-- Container for the top half of the page -->
-  <div class="h-50 w-100">
+  <div class="card-area w-100">
     <!-- Create the row to hold the cards within the top half -->
     <div class="cards">
       <!-- This begins each card element. A goal in the project is to turn this into smaller components -->
@@ -44,5 +44,10 @@ const team = computed(() => teamRef.value.members ?? [])
   @media(max-width: 1400px) {
     flex-wrap: wrap;
   }
+}
+
+.card-area {
+  flex: 0 0 50%;
+  min-height: 0;
 }
 </style>

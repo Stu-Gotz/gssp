@@ -1,5 +1,5 @@
 <script setup>
-import CardDisplay from '../components/CardDisplay.vue' 
+import CardDisplay from '../components/CardDisplay.vue'
 import TeamForm from '../components/TeamForm.vue'
 import LowerDisplay from '../components/LowerDisplay.vue'
 import Footer from '../components/Footer.vue'
@@ -10,7 +10,7 @@ import Footer from '../components/Footer.vue'
     <!-- left half -->
     <TeamForm />
     <!-- Right Half -->
-    <div class="d-flex flex-column align-items-center justify-content-center">
+    <div class="d-flex flex-column align-items-center justify-content-center right-side">
       <CardDisplay />
       <LowerDisplay />
     </div>
@@ -19,7 +19,7 @@ import Footer from '../components/Footer.vue'
   </div>
 </template>
 
-<style>
+<style lang="scss">
 .content {
   display: grid;
   grid-template-columns: 17% auto;
@@ -27,6 +27,15 @@ import Footer from '../components/Footer.vue'
   column-gap: 20px;
   background: var(--color-background);
   flex: 1;
+  min-height: 0;
+
+  &>* {
+    min-height: 0;
+  }
 }
 
+.right-side {
+  gap: 8px;
+  overflow: hidden;
+}
 </style>

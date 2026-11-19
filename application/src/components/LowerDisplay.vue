@@ -6,20 +6,41 @@
 -->
 
 <script setup>
-import { useStatStore } from '../stores/statStore';
-import { storeToRefs } from 'pinia';
+import { computed, watch, ref } from "vue";
+import { storeToRefs } from "pinia";
+import { useStatStore } from "../stores/statStore";
+import { useTeamStore } from "../stores/teamStore";
 
 const statStore = useStatStore();
+const teamStore = useTeamStore();
+const { trends, error, loading } = storeToRefs(statStore);
 
+const filter = ref(null);
+
+const genString = computed(() =>
+  teamStore.team.gen && teamStore.team.tier ? teamStore.team.gen + teamStore.team.tier : null
+);
+
+watch(
+  genString,
+  (tier) => {
+    if (tier) statStore.getCompare(tier);
+
+  },
+  { immediate: true }
+);
+
+
+// comparisons = storeToRefs(await apiGet(`/compare/${teamStore.team.gen + teamStore.team.tier}`));
 const { current, previous, older } = storeToRefs(statStore);
 
 const tableColumns = [
   { key: "sprite", label: "" },
   { key: "pokemon", label: "Name" },
-  { key: "rank", label: "Current Rank" },
-  { key: "raw", label: "Usage Rate (Raw)" },
-  { key: "raw_pct", label: "Usage Rate (Percent)" },
-  { key: "current", label: "Previous Rank" },
+  { key: "current_rank", label: "Current Rank" },
+  { key: "raw_usage", label: "Usage Rate (Raw)" },
+  { key: "usage_pct", label: "Usage Rate (Percent)" },
+  { key: "previous_rank", label: "Previous Rank" },
   { key: "change", label: "Change" }
 ];
 
@@ -34,6 +55,8 @@ function rankChange(oldRank, newRank) {
   }
 }
 
+function sort() { return }
+function sortBy() { return }
 </script>
 
 <template>
@@ -44,10 +67,11 @@ function rankChange(oldRank, newRank) {
     show change in rank and highlight red or green on neg/pos
     current rank, sprite, name, total use, % use, previous don't show older but use it for rank range in previous in parenthesis
     names are hyperlinks to dex page (not started yet)-->
-  <h4>This is in development still. For this reason it only displays the top 25 of each tier. This may change, but
-    unlikely.</h4>
-  <div class="w-100">
-    <!-- name search -->
+
+  <div class="table-container w-100 d-flex flex-column justify-content-between">
+    <h4>This is in development still. For this reason it only displays the top 25 of each tier. This may change, but
+      unlikely.</h4>
+    <!-- name search v-model -->
     <input v-model="filter" type="search" class="form-control mb-2" placeholder="Filter by name">
 
     <!-- table container -->
@@ -56,14 +80,20 @@ function rankChange(oldRank, newRank) {
       <table class="table table-sm table-hover align-middle mb-0">
         <thead class="table-light sticky-top">
           <tr>
-            <th>
-              <!-- for item in column names array -->
+            <th v-for="col in tableColumns" :key="col.key" role="button">
+              {{ col.label }}
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr class="">
-            <!-- for row in data array make rows -->
+          <tr v-for="row in trends" :key="row.pokemon">
+            <td> sprite </td>
+            <td> {{ row.pokemon }} </td>
+            <td> {{ row.current_rank }} </td>
+            <td> {{ row.raw_usage.toLocaleString() }} </td>
+            <td> {{ row.usage_pct.toFixed(2) }} </td>
+            <td> {{ row.previous_rank }} </td>
+            <td> {{ row.previous_rank - row.current_rank }}</td>
           </tr>
         </tbody>
       </table>
@@ -99,8 +129,48 @@ ul>* {
   text-transform: capitalize;
 }
 
+.table-container {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+td {
+  text-align: left;
+}
+
+th {
+  &:not(:last-child) {
+    border-right: 1px solid black;
+
+  }
+
+  &:first-child {
+    border-top-left-radius: 10px;
+  }
+
+  &:last-child {
+    border-top-right-radius: 10px;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+}
+
 .stats-table {
-  max-height: 50%;
+  flex: 1 1 0;
+  min-height: 0;
   overflow: auto;
 }
 </style>

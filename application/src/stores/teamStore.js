@@ -17,7 +17,7 @@ function lowerCaseKeys(obj) {
 }
 
 async function mapMoves(movesArray) {
-  // console.log(movesArray);
+  // 
   const moveObject = await P.getMoveByName(
     movesArray.map((i) => normaliseNames(i, "-", " "))
   ).then((response) => {
@@ -70,17 +70,17 @@ export const useTeamStore = defineStore("teamStore", {
       const pokemon = members.map(function (el) {
         const formatted = lowerCaseKeys(el);
         formatted["name"] = normaliseNames(formatted["name"], "-", " ")
-        console.log(formatted["name"])
+
         return formatted;
       });
-      console.log(pokemon)
+
       const tasks = pokemon.map((mon) => mon.name);
       const res = (await Promise.all(tasks.map((n) => apiGet(`/dex/${encodeURIComponent(n)}`)))).map((r) => r.data);
-      console.log(res)
+
       pokemon.forEach(async (el) => {
         el["moves"] = await mapMoves(el["moves"], that);
       });
-      console.log(pokemon)
+
       //extracting fields of interest from the things I want from the res variable
       for (var i = 0; i < pokemon.length; i++) {
         res.filter(

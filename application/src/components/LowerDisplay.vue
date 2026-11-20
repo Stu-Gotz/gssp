@@ -15,9 +15,8 @@ const statStore = useStatStore();
 const teamStore = useTeamStore();
 const { trends, error, loading } = storeToRefs(statStore);
 
-console.log(trends)
 const filter = ref("");
-const sortKey = ref("current");
+const sortKey = ref("current_rank");
 const sortAsc = ref(1);
 
 
@@ -27,10 +26,19 @@ const genString = computed(() =>
 
 const filteredRows = computed(() => {
   const term = filter.value.trim().toLowerCase();
-  if (!term) return trends.value ?? [];
-  //found this on jsperf, should be a faster way to string match but functionally identical to str.includes()
-  return (trends.value ?? []).filter((row) => row.pokemon.toLowerCase().indexOf(term) !== -1);
-})
+  //found this indexof 'trick' on jsperf, faster version of .includes()
+  const rows = (trends.value ?? []).filter((row) => !term || row.pokemon.toLowerCase().indexOf(term) !== -1);
+
+  const dir = sortAsc.value ? 1 : -1;
+  return rows.sort((a, b) => {
+    const x = a[sortKey.value];
+    const y = b[sortKey.value];
+    if (x == null || Number.isNaN(x)) return 1;
+    if (y == null || Number.isNaN(y)) return -1;
+    return (typeof x === "string" ? x.localeCompare(y) : x - y) * dir;
+  });
+});
+
 watch(
   genString,
   (tier) => {
@@ -40,37 +48,30 @@ watch(
   { immediate: true }
 );
 
-
-// comparisons = storeToRefs(await apiGet(`/compare/${teamStore.team.gen + teamStore.team.tier}`));
-const { current, previous, older } = storeToRefs(statStore);
-
 const tableColumns = [
-  { key: "sprite", label: "" },
-  { key: "pokemon", label: "Name" },
-  { key: "current_rank", label: "Current Rank" },
-  { key: "raw_usage", label: "Usage Rate (Raw)" },
-  { key: "usage_pct", label: "Usage Rate (Percent)" },
-  { key: "previous_rank", label: "Previous Rank" },
-  { key: "change", label: "Change" }
+  { key: "sprite", label: "", sortable: false },
+  { key: "pokemon", label: "Name", sortable: true },
+  { key: "current_rank", label: "Current Rank", sortable: true },
+  { key: "raw_usage", label: "Usage Rate (Raw)", sortable: true },
+  { key: "usage_pct", label: "Usage Rate (Percent)", sortable: true },
+  { key: "previous_rank", label: "Previous Rank", sortable: true },
+  { key: "change", label: "Change", sortable: false }
 ];
 
-function rankChange(oldRank, newRank) {
+function rankChange(change) {
 
-  if (oldRank > newRank) {
-    return { 'background-color': '#f57e76' };
-  } else if (newRank > oldRank) {
-    return { 'background-color': '#69d682' };
+  if (change > 0) {
+    return "table-success";
+  } else if (change < 0) {
+    return "table-danger";
   } else {
     return null;
   }
 }
 
-function sort() { return }
-
 function sortBy(key) {
   if (sortKey.value === key) {
     sortAsc.value = !sortAsc.value;
-    console.log(`sorting ascending? ${sortAsc.value}`)
   } else {
     sortKey.value = key;
     sortAsc.value = key !== "change"; // ranks: 1 first; change: biggest climbers first
@@ -88,8 +89,9 @@ function sortBy(key) {
     names are hyperlinks to dex page (not started yet)-->
 
   <div class="table-container w-100 d-flex flex-column justify-content-between">
-    <h4>This is in development still. For this reason it only displays the top 25 of each tier. This may change, but
-      unlikely.</h4>
+    <h6 style="text-align: center;">This is in development still. For this reason it only displays the top 25 of each
+      tier. This may change, but
+      unlikely.</h6>
     <!-- name search v-model -->
     <input v-model="filter" type="search" class="form-control mb-2" placeholder="Filter by name">
 
@@ -99,14 +101,17 @@ function sortBy(key) {
       <table class="table table-sm table-hover align-middle mb-0">
         <thead class="table-light sticky-top">
           <tr>
-            <th v-for="col in tableColumns" :key="col.key" role="button" @click="sortBy(col.key)"
+            <th v-for="col in tableColumns" :key="col.key" :role="col.sortable ? 'button' : undefined"
+              @click="col.sortable && sortBy(col.key)"
               :aria-sort="sortKey === col.key ? (sortAsc ? 'ascending' : 'descending') : 'none'">
               {{ col.label }}
+              <span class="sort-arrow" :class="{ invisible: sortKey !== col.key }" v-if="col.sortable">{{ sortAsc ? "▲"
+                : "▼" }}</span>
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="row in filteredRows" :key="row.pokemon">
+          <tr v-for="row in filteredRows" :key="row.pokemon" :class="rankChange(row.previous_rank - row.current_rank)">
             <td><a href="/#"> sprite </a></td>
             <td><a href="/#"> {{ normaliseNames(titleCase(normaliseNames(row.pokemon, ' ', '-')), '-', ' ') }} </a></td>
             <td> {{ row.current_rank }} </td>
@@ -119,28 +124,6 @@ function sortBy(key) {
       </table>
     </div>
   </div>
-  <!-- OLD KEEP AS FALLBACK -->
-  <!-- <div class="d-flex h-50 w-100 justify-content-between align-items-start flex-1">
-    <div class="h-100 w-100 overflow-auto">
-      <p class="position-absolute text-center m-0 p-0 border-bottom">Current Ranking</p>
-      <ul class="d-flex flex-column flex-1 align-items-end">
-        <li class="text-align-left pe-2" v-for="curr in current"> {{
-          curr.pokemon }} -- {{ curr.rank }}</li>
-      </ul>
-    </div>
-    <div class="h-100 w-100 overflow-auto">
-      <p class="position-absolute text-center m-0 p-0 border-bottom">Previous Ranking</p>
-      <ul class="d-flex flex-column flex-1 align-items-end">
-        <li class="text-align-left pe-2" v-for="prev in previous">{{ prev.pokemon }} -- {{ prev.rank }}</li>
-      </ul>
-    </div>
-    <div class="h-100 w-100 overflow-auto">
-      <p class="position-absolute text-center m-0 p-0 border-bottom">Older Ranking</p>
-      <ul class="d-flex flex-column flex-1 align-items-end">
-        <li class="text-align-left pe-2" v-for="old in older">{{ old.pokemon }} -- {{ old.rank }}</li>
-      </ul>
-    </div>
-  </div> -->
 </template>
 
 <style scoped>
@@ -160,18 +143,20 @@ td {
 }
 
 th {
-  &:not(:last-child) {
-    border-right: 1px solid black;
+  white-space: nowrap;
 
-  }
 
   &:first-child {
     border-top-left-radius: 10px;
   }
 
   &:last-child {
-    border-top-right-radius: 10px;
+    border-top-right-radius: 4px;
   }
+}
+
+.sort-arrow {
+  display: inline-block;
 }
 
 ::-webkit-scrollbar {
@@ -192,5 +177,6 @@ th {
   flex: 1 1 0;
   min-height: 0;
   overflow: auto;
+  border-radius: 10px;
 }
 </style>

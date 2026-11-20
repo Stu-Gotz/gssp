@@ -12,3 +12,4 @@ defineProps(['name', 'item', 'nature', 'ability']);
     </div>
   </div>
 </template>
+

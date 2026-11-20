@@ -3,8 +3,9 @@ import CardTop from '../cardComponents/CardTop.vue';
 import CardFrontImages from '../cardComponents/CardFrontImages.vue';
 import CardEvs from '../cardComponents/CardEvs.vue';
 import CardMoves from '../cardComponents/CardMoves.vue';
+import { titleCase, normaliseNames } from '../../utils/utils.js';
 
-defineProps(['pokemon'])
+defineProps(['pokemon']);
 
 function typeBackground(type) {
   const backgroundImageUrls = [];
@@ -26,11 +27,12 @@ function typeBackground(type) {
 </script>
 
 <template>
-  <div class="col card front align-items-center justify-content-evenly card-body" >
+  <div class="col card front align-items-center justify-content-evenly card-body">
     <!-- Div for the images -->
     <CardFrontImages :style="typeBackground(pokemon.type)" :sprite="pokemon.spriteUrl" :helditem="pokemon.itemUrl" />
     <!-- Data about the pokemon, name, move, stats etc -->
-    <CardTop :name="pokemon.name" :ability="pokemon.ability" :item="pokemon.item" :nature="pokemon.nature" />
+    <CardTop :name="titleCase(normaliseNames(pokemon.name, ' ', '-'))" :ability="titleCase(pokemon.ability)"
+      :item="titleCase(normaliseNames(pokemon.item, ' ', '-'))" :nature="titleCase(pokemon.nature)" />
     <div class="border border-info-subtle border-3 mx-2 rounded">
       <!-- EVs, to be input iteratively -->
       <CardEvs :evs="pokemon.evs" />

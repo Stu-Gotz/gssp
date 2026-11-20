@@ -62,7 +62,7 @@ async function submitForm() {
     } catch (err) {
       console.log(err)
     }
-   
+
     const tranche = gen.value + tier.value;
     const ERAS = ["current", "previous", "older"]
 
@@ -90,8 +90,8 @@ async function saveTeam() {
 <template>
   <!-- left half  -->
   <form @submit.prevent class="d-flex flex-column flex-1">
-    <ul v-if="errors.value">
-      <li v-for="{ idx, err } in errors.value">{{ idx }} - {{ err }}</li>
+    <ul v-if="errors.length">
+      <li v-for="(idx, err) in errors">{{ idx }} - {{ err }}</li>
     </ul>
     <label class="team-name" for="teamName">Provide a team name (optional):</label>
     <input v-model="name" class="form-control ps-2 pt-0 mx-2 mb-2 mt-0" type="text" id="teamName"
@@ -105,8 +105,8 @@ async function saveTeam() {
       <option v-for="tier in tiers">{{ tier }}</option>
     </select>
     <label class="form-label" for="teamPasteArea">Please paste your Showdown output below: </label>
-    <textarea class="form-control pastearea d-flex flex-column h-100 flex-grow-1" placeholder="" name="teamPasteArea"
-      id="teamPasteArea" v-model="userInput">
+    <textarea class="form-control pastearea d-flex flex-column" placeholder="" name="teamPasteArea" id="teamPasteArea"
+      v-model="userInput">
     </textarea>
     <div class="d-flex align-items-center justify-content-around">
       <button @click="submitForm()" type="button" class="btn btn-success form-control
@@ -128,7 +128,7 @@ form {
   outline: 0 none;
   padding: 10px;
   resize: none;
-
+  flex: 1 1 auto;
   margin-bottom: 5px;
   box-sizing: border-box;
   // background-color:#a79bbc;

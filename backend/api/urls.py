@@ -10,4 +10,5 @@ urlpatterns = [
     path("register", views.register),
     path("saveteam", views.save_team),
     path("dex/<str:name>", views.dex),
+    path("compare/<str:tier>", views.compare),
 ]

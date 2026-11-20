@@ -9,6 +9,7 @@ export const useStatStore = defineStore('statStore', {
     older: null,
     loading: false,
     error: null,
+    trends: null,
   }),
   actions: {
     async setTier(era, tier) {
@@ -25,6 +26,17 @@ export const useStatStore = defineStore('statStore', {
         this.loading = false;
       }
     },
+    async getCompare(tier) {
+      this.loading = true;
+      try {
+        const results = await apiGet(`/compare/${tier}`);
+        this.trends = results.data;
+      } catch (err) {
+        this.error = err.message;
+      } finally {
+        this.loading = false;
+      }
+    },
     getters: {
       getCurrent(state) {
         return state.current;
@@ -32,8 +44,8 @@ export const useStatStore = defineStore('statStore', {
       getPrevious(state) {
         return state.previous;
       },
-      getTma(state) {
-        return state.tma;
+      getOlder(state) {
+        return state.older;
       }
     },
     persist: true,
